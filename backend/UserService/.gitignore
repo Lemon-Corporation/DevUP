@@ -34,5 +34,4 @@ build/
 
 src/main/java/ru/lemonade/UserService/config
 src/main/java/ru/lemonade/UserService/controller
-src/main/java/ru/lemonade/UserService/model
 src/test
