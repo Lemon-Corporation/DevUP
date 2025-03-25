@@ -32,5 +32,4 @@ build/
 ### VS Code ###
 .vscode/
 
-src/main/java/ru/lemonade/UserService/config
 src/test
