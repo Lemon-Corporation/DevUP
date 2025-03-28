@@ -1,7 +1,7 @@
+import 'package:devup/Values/values.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:devup/Values/values.dart';
 
 // ignore: must_be_immutable
 class ToggleLabelOption extends StatelessWidget {
@@ -27,7 +27,7 @@ class ToggleLabelOption extends StatelessWidget {
             valueListenable: notifierValue!,
             builder: (BuildContext context, _, __) {
               return Padding(
-                padding: EdgeInsets.symmetric(vertical: this.margin ?? 8.0), // 8.0 as default margin.
+                padding: EdgeInsets.symmetric(vertical: this.margin ?? 8.0),
                 child: MergeSemantics(
                     child: ListTile(
                         title: Row(
@@ -50,7 +50,6 @@ class ToggleLabelOption extends StatelessWidget {
               );
             }),
         Divider(height: 1, color: HexColor.fromHex("353742"))
-        // Divider(height: 1, color: HexColor.fromHex("616575"))
       ],
     );
   }
