@@ -1,0 +1,70 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  # Java services with Spring Boot Actuator
+  - job_name: 'user-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['user-service:8001']
+    scrape_interval: 5s
+
+  - job_name: 'task-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['task-service:8002']
+    scrape_interval: 5s
+
+  - job_name: 'game-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['game-service:8003']
+    scrape_interval: 5s
+
+  # Python services
+  - job_name: 'theory-service'
+    static_configs:
+      - targets: ['theory-service:8004']
+    scrape_interval: 5s
+    metrics_path: '/metrics'
+
+  - job_name: 'ml-service'
+    static_configs:
+      - targets: ['ml-service:8005']
+    scrape_interval: 5s
+    metrics_path: '/metrics'
+
+  - job_name: 'analyze-service'
+    static_configs:
+      - targets: ['analyze-service:8006']
+    scrape_interval: 5s
+    metrics_path: '/metrics'
+
+  - job_name: 'notification-service'
+    static_configs:
+      - targets: ['notification-service:8007']
+    scrape_interval: 5s
+    metrics_path: '/metrics' 
