@@ -13,12 +13,10 @@ void main() async {
 
   print("App starting: initializing services");
 
-  // Инициализация сервисов и данных
   await AppServices.init();
 
   print("App: Services initialized, setting up controllers");
 
-  // Инициализация контроллеров
   Get.put(GamificationController());
   Get.put(AIController());
   Get.put(AppStateController());
@@ -34,7 +32,6 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
@@ -42,12 +39,12 @@ class MyApp extends StatelessWidget {
       title: 'DevUp',
       theme: ThemeData(
         brightness: Brightness.light,
-        primaryColor: Color(0xFF5B5FEF), // Более мягкий фиолетовый
+        primaryColor: Color(0xFF5B5FEF),
         colorScheme: ColorScheme.light(
           primary: Color(0xFF5B5FEF),
-          secondary: Color(0xFF00C9B1), // Бирюзовый акцент
-          tertiary: Color(0xFFFF6B6B), // Коралловый для акцентов
-          surface: Color(0xFFF8F9FA), // Светло-серый для карточек
+          secondary: Color(0xFF00C9B1),
+          tertiary: Color(0xFFFF6B6B),
+          surface: Color(0xFFF8F9FA),
           background: Colors.white,
         ),
         scaffoldBackgroundColor: Colors.white,
@@ -64,16 +61,12 @@ class MyApp extends StatelessWidget {
           ),
         ),
         textTheme: TextTheme(
-          headlineLarge:
-              TextStyle(color: Color(0xFF2D3142)), // headline1 → headlineLarge
-          headlineMedium:
-              TextStyle(color: Color(0xFF2D3142)), // headline2 → headlineMedium
-          bodyLarge:
-              TextStyle(color: Color(0xFF2D3142)), // bodyText1 → bodyLarge
-          bodyMedium:
-              TextStyle(color: Color(0xFF2D3142)), // bodyText2 → bodyMedium
+          headlineLarge: TextStyle(color: Color(0xFF2D3142)),
+          headlineMedium: TextStyle(color: Color(0xFF2D3142)),
+          bodyLarge: TextStyle(color: Color(0xFF2D3142)),
+          bodyMedium: TextStyle(color: Color(0xFF2D3142)),
         ),
-        fontFamily: 'Montserrat', // Apple-подобный шрифт
+        fontFamily: 'Montserrat',
       ),
       home: SplashScreen(),
     );
