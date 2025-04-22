@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: TaskService
+  datasource:
+    url: jdbc:postgresql://localhost:5432/lemonTasks
+    username: postgres
+    password: admin
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    database: postgresql
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
