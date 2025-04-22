@@ -12,21 +12,29 @@ async def get_user_progress(
     current_user=Depends(get_current_user)
 ):
     """
-    Получает прогресс конкретного пользователя.
+    Возвращает прогресс пользователя:
+    - Пытается из Redis (key=user:progress:{user_id}, TTL=60s).
+    - При неудачной попытке - из PostgreSQL, затем кеширует.
 
     Args:
-        user_id (int): идентификатор пользователя, чей прогресс требуется.
-        request (Request): объект запроса, для доступа к состоянию приложения.
-        current_user: данные текущего аутентифицированного пользователя.
+        user_id (int): ID пользователя.
+        request (Request): объект запроса для доступа к app.state.
+        current_user: данные аутентифицированного пользователя.
 
     Returns:
-        UserProgress: модель с данными прогресса пользователя.
+        UserProgress: кол-во выполненных заданий.
     """
-    db_pool = request.app.state.db_pool
-    async with db_pool.acquire() as conn:
+    redis = request.app.state.redis_client
+    cache_key = f"user:progress:{user_id}"
+    cached = await redis.get(cache_key)
+    if cached is not None:
+        return UserProgress(user_id=user_id, tasks_completed=int(cached))
+
+    db = request.app.state.db_pool
+    async with db.acquire() as conn:
         row = await conn.fetchrow(
-            "SELECT user_id, tasks_completed FROM user_progress WHERE user_id = $1;", user_id
+            "SELECT tasks_completed FROM user_progress WHERE user_id = $1;", user_id
         )
-        if not row:
-            return UserProgress(user_id=user_id, tasks_completed=0)
-        return UserProgress(**dict(row))
+    tasks = row["tasks_completed"] if row else 0
+    await redis.set(cache_key, str(tasks), ex=60)
+    return UserProgress(user_id=user_id, tasks_completed=tasks)

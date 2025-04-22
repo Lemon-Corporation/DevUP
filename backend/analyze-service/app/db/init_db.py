@@ -35,7 +35,7 @@ async def init_db(pool: asyncpg.Pool):
                 total_tasks_completed INT DEFAULT 0
             );
         """)
-        # Если таблица global_stats пуста, создаем начальную запись.
+
         row = await conn.fetchrow("SELECT COUNT(*) as cnt FROM global_stats;")
         if row["cnt"] == 0:
             await conn.execute("INSERT INTO global_stats (total_users, total_tasks_completed) VALUES (0, 0);")

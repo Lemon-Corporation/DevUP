@@ -3,7 +3,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     """
-    Класс настроек приложения, загружаемых из файла .env.
+    Конфигурация приложения.
     """
     POSTGRES_DSN: str
     REDIS_DSN: str
