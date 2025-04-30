@@ -1,10 +1,10 @@
-import 'package:devup/Data/data_model.dart';
-import 'package:devup/Screens/Learning/course_detail_screen.dart';
-import 'package:devup/Values/values.dart';
-import 'package:devup/widgets/DarkBackground/darkRadialBackground.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:devup/Values/values.dart';
+import 'package:devup/widgets/DarkBackground/darkRadialBackground.dart';
+import 'package:devup/Data/data_model.dart';
+import 'package:devup/Screens/Learning/course_detail_screen.dart';
 
 class TaskDetailScreen extends StatefulWidget {
   final Map<String, dynamic> task;
@@ -12,8 +12,8 @@ class TaskDetailScreen extends StatefulWidget {
   final String? track;
 
   const TaskDetailScreen({
-    Key? key,
-    required this.task,
+    Key? key, 
+    required this.task, 
     this.courseId,
     this.track,
   }) : super(key: key);
@@ -27,23 +27,27 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   bool isAnswerSubmitted = false;
   bool isAnswerCorrect = false;
   String userSolution = "";
-
-  int currentTaskIndex = 2;
-  final int totalTasks = 5;
-
+  
+  // Прогресс квеста (для демонстрации)
+  int currentTaskIndex = 2; // Текущее задание
+  final int totalTasks = 5; // Всего заданий в квесте
+  
   @override
   void initState() {
     super.initState();
+    // Определяем текущий индекс задания для прогресс-бара
     _determineTaskIndex();
   }
-
+  
   void _determineTaskIndex() {
+    // Здесь можно было бы получить реальный индекс из сервиса данных
+    // Для демонстрации используем случайное значение от 0 до totalTasks-1
     setState(() {
       currentTaskIndex = widget.task["id"].hashCode % totalTasks;
       if (currentTaskIndex < 0) currentTaskIndex = 0;
     });
   }
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,6 +61,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Прогресс-бар в стиле Duolingo
                 _buildProgressBar(),
                 SizedBox(height: 10),
                 Padding(
@@ -184,6 +189,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                         Expanded(
                           child: GestureDetector(
                             onTap: () {
+                              // Переход к следующему заданию
                               _goToNextTask();
                             },
                             child: Container(
@@ -229,15 +235,19 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       height: 10,
       child: Row(
         children: List.generate(totalTasks, (index) {
+          // Определяем цвет сегмента
           Color segmentColor;
           if (index < currentTaskIndex) {
+            // Выполненные задания
             segmentColor = AppColors.success;
           } else if (index == currentTaskIndex) {
+            // Текущее задание
             segmentColor = AppColors.primary;
           } else {
+            // Будущие задания
             segmentColor = AppColors.textLight.withOpacity(0.3);
           }
-
+          
           return Expanded(
             child: Container(
               margin: EdgeInsets.symmetric(horizontal: 2),
@@ -258,6 +268,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Описание задания
           Container(
             padding: EdgeInsets.all(15),
             decoration: BoxDecoration(
@@ -281,9 +292,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                 ),
                 SizedBox(height: 10),
                 Text(
-                  widget.task["description"] ??
-                      widget.task["problem"] ??
-                      "Выполните задание, следуя инструкциям ниже.",
+                  widget.task["description"] ?? widget.task["problem"] ?? "Выполните задание, следуя инструкциям ниже.",
                   style: GoogleFonts.firaCode(
                     fontSize: 14,
                     color: AppColors.textPrimary,
@@ -293,24 +302,33 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             ),
           ),
           SizedBox(height: 20),
+          
+          // Секция анализа кода (если есть)
           if (widget.task["codeSnippet"] != null) ...[
             _buildCodeAnalysisSection(),
             SizedBox(height: 20),
           ],
+          
+          // Секция примеров (если есть)
           if (widget.task["examples"] != null) ...[
             _buildExamplesSection(),
             SizedBox(height: 20),
           ],
-          if (widget.task["questions"] != null &&
-              (widget.task["questions"] as List).isNotEmpty) ...[
+          
+          // Секция тестовых вопросов (если есть)
+          if (widget.task["questions"] != null && (widget.task["questions"] as List).isNotEmpty) ...[
             _buildQuestionsSection(),
             SizedBox(height: 20),
           ],
-          if (widget.task["type"] == "Задача с развернутым ответом" ||
+          
+          // Секция для ввода решения (если это задача с развернутым ответом)
+          if (widget.task["type"] == "Задача с развернутым ответом" || 
               widget.task["sampleSolution"] != null) ...[
             _buildSolutionSection(),
             SizedBox(height: 20),
           ],
+          
+          // Результат проверки (если ответ отправлен)
           if (isAnswerSubmitted) ...[
             _buildResultSection(),
           ],
@@ -320,9 +338,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   }
 
   Widget _buildCodeAnalysisSection() {
-    final codeSnippet =
-        widget.task["codeSnippet"] ?? "// Код для анализа отсутствует";
-
+    final codeSnippet = widget.task["codeSnippet"] ?? "// Код для анализа отсутствует";
+    
     return Container(
       padding: EdgeInsets.all(15),
       decoration: BoxDecoration(
@@ -348,14 +365,14 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           Container(
             padding: EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Color(0xFF1E1E1E),
+              color: Color(0xFF1E1E1E), // Темный фон для кода
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
               codeSnippet,
               style: GoogleFonts.firaCode(
                 fontSize: 12,
-                color: Colors.white,
+                color: Colors.white, // Белый текст для кода
               ),
             ),
           ),
@@ -366,7 +383,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
   Widget _buildExamplesSection() {
     final examples = widget.task["examples"] ?? [];
-
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -399,65 +416,56 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             ),
           )
         else
-          ...examples
-              .map<Widget>((example) => Container(
-                    margin: EdgeInsets.only(bottom: 10),
-                    padding: EdgeInsets.all(15),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(
-                        color: AppColors.textLight,
-                        width: 1,
-                      ),
+          ...examples.map<Widget>((example) => Container(
+            margin: EdgeInsets.only(bottom: 10),
+            padding: EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(15),
+              border: Border.all(
+                color: AppColors.textLight,
+                width: 1,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Ввод: ${example["input"] ?? ""}",
+                  style: GoogleFonts.firaCode(
+                    fontSize: 14,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  "Вывод: ${example["output"] ?? ""}",
+                  style: GoogleFonts.firaCode(
+                    fontSize: 14,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                if (example["explanation"] != null) ...[
+                  SizedBox(height: 10),
+                  Text(
+                    "Объяснение: ${example["explanation"]}",
+                    style: GoogleFonts.firaCode(
+                      fontSize: 14,
+                      color: AppColors.textSecondary,
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Ввод: ${example["input"] ?? ""}",
-                          style: GoogleFonts.firaCode(
-                            fontSize: 14,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          "Вывод: ${example["output"] ?? ""}",
-                          style: GoogleFonts.firaCode(
-                            fontSize: 14,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        if (example["explanation"] != null) ...[
-                          SizedBox(height: 10),
-                          Text(
-                            "Объяснение: ${example["explanation"]}",
-                            style: GoogleFonts.firaCode(
-                              fontSize: 14,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ))
-              .toList(),
+                  ),
+                ],
+              ],
+            ),
+          )).toList(),
       ],
     );
   }
 
   Widget _buildQuestionsSection() {
     final questions = widget.task["questions"];
-    final question = questions != null && questions.isNotEmpty
-        ? questions[0]
-        : {
-            "question": "Вопрос отсутствует",
-            "options": [],
-            "correctAnswer": -1,
-            "explanation": "Объяснение отсутствует"
-          };
-
+    final question = questions != null && questions.isNotEmpty ? questions[0] : {"question": "Вопрос отсутствует", "options": [], "correctAnswer": -1, "explanation": "Объяснение отсутствует"};
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -559,14 +567,12 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   }
 
   Widget _buildResultSection() {
-    if (widget.task["questions"] != null &&
-        (widget.task["questions"] as List).isNotEmpty) {
+    // Для тестовых заданий
+    if (widget.task["questions"] != null && (widget.task["questions"] as List).isNotEmpty) {
       return Container(
         padding: EdgeInsets.all(15),
         decoration: BoxDecoration(
-          color: isAnswerCorrect
-              ? AppColors.success.withOpacity(0.2)
-              : AppColors.error.withOpacity(0.2),
+          color: isAnswerCorrect ? AppColors.success.withOpacity(0.2) : AppColors.error.withOpacity(0.2),
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
             color: isAnswerCorrect ? AppColors.success : AppColors.error,
@@ -589,16 +595,14 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                   style: GoogleFonts.firaCode(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color:
-                        isAnswerCorrect ? AppColors.success : AppColors.error,
+                    color: isAnswerCorrect ? AppColors.success : AppColors.error,
                   ),
                 ),
               ],
             ),
             SizedBox(height: 10),
             Text(
-              widget.task["questions"][0]["explanation"] ??
-                  "Объяснение отсутствует",
+              widget.task["questions"][0]["explanation"] ?? "Объяснение отсутствует",
               style: GoogleFonts.firaCode(
                 fontSize: 14,
                 color: AppColors.textPrimary,
@@ -614,9 +618,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                 ),
                 SizedBox(width: 5),
                 Text(
-                  isAnswerCorrect
-                      ? "+${widget.task["xpReward"] ?? 10} XP"
-                      : "+0 XP",
+                  isAnswerCorrect ? "+${widget.task["xpReward"] ?? 10} XP" : "+0 XP",
                   style: GoogleFonts.firaCode(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -628,7 +630,9 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           ],
         ),
       );
-    } else {
+    } 
+    // Для задач с развернутым ответом
+    else {
       return Container(
         padding: EdgeInsets.all(15),
         decoration: BoxDecoration(
@@ -676,11 +680,11 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
   Widget _buildOptionItem(int index, String option, bool? isCorrect) {
     final bool isSelected = selectedAnswerIndex == index;
-
+    
     Color backgroundColor;
     Color borderColor;
     Color textColor;
-
+    
     if (isAnswerSubmitted) {
       if (isCorrect == true) {
         backgroundColor = AppColors.success.withOpacity(0.2);
@@ -706,15 +710,13 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         textColor = AppColors.textPrimary;
       }
     }
-
+    
     return GestureDetector(
-      onTap: isAnswerSubmitted
-          ? null
-          : () {
-              setState(() {
-                selectedAnswerIndex = index;
-              });
-            },
+      onTap: isAnswerSubmitted ? null : () {
+        setState(() {
+          selectedAnswerIndex = index;
+        });
+      },
       child: Container(
         margin: EdgeInsets.only(bottom: 10),
         padding: EdgeInsets.all(15),
@@ -780,43 +782,49 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   void _submitAnswer() {
     setState(() {
       isAnswerSubmitted = true;
-
-      if (widget.task["questions"] != null &&
-          (widget.task["questions"] as List).isNotEmpty) {
+      
+      if (widget.task["questions"] != null && (widget.task["questions"] as List).isNotEmpty) {
         final questions = widget.task["questions"];
-        final question =
-            questions != null && questions.isNotEmpty ? questions[0] : null;
-        isAnswerCorrect = question != null &&
-            selectedAnswerIndex == question["correctAnswer"];
+        final question = questions != null && questions.isNotEmpty ? questions[0] : null;
+        isAnswerCorrect = question != null && selectedAnswerIndex == question["correctAnswer"];
       } else {
-        isAnswerCorrect = true;
+        // Для задач с развернутым ответом результат будет получен от AI
+        // Здесь просто показываем сообщение о том, что решение отправлено
+        isAnswerCorrect = true; // Для демонстрации считаем, что ответ верный
       }
-
+      
+      // Обновляем прогресс в курсе, если задание выполнено в контексте курса
       if (isAnswerCorrect && widget.courseId != null) {
         _updateCourseProgress();
       }
     });
   }
-
+  
   void _updateCourseProgress() {
+    // Здесь можно было бы обновить прогресс в курсе через сервис данных
+    // Для демонстрации просто увеличиваем индекс текущего задания
     setState(() {
       if (currentTaskIndex < totalTasks - 1) {
         currentTaskIndex++;
       }
     });
-
+    
+    // Если мы находимся на экране деталей курса, можно было бы вызвать метод обновления прогресса
     if (widget.courseId != null && Get.isRegistered<CourseDetailScreen>()) {
       try {
         final courseDetailScreen = Get.find<CourseDetailScreen>();
+        // courseDetailScreen.markTaskCompleted(widget.task["id"]);
       } catch (e) {
         print("Не удалось обновить прогресс в курсе: $e");
       }
     }
   }
 
+  // Метод для перехода к следующему заданию
   void _goToNextTask() {
+    // Получаем ID следующего задания из текущего
     final String? nextTaskId = widget.task["nextTaskId"];
-
+    
     if (nextTaskId == null) {
       // Если следующего задания нет, возвращаемся к списку
       Get.back();
@@ -829,9 +837,11 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       );
       return;
     }
-
+    
+    // Ищем следующее задание в соответствующем списке
     Map<String, dynamic>? nextTask;
-
+    
+    // Проверяем тип текущего задания и ищем в соответствующем списке
     if (widget.task["type"] == "Тест") {
       nextTask = AppData.testTasks.firstWhere(
         (task) => task["id"] == nextTaskId,
@@ -848,13 +858,11 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         orElse: () => {},
       );
     }
-
+    
+    // Если следующее задание не найдено в списке соответствующего типа,
+    // ищем во всех списках
     if (nextTask == null || nextTask.isEmpty) {
-      for (final taskList in [
-        AppData.testTasks,
-        AppData.codeAnalysisTasks,
-        AppData.algorithmTasks
-      ]) {
+      for (final taskList in [AppData.testTasks, AppData.codeAnalysisTasks, AppData.algorithmTasks]) {
         final found = taskList.firstWhere(
           (task) => task["id"] == nextTaskId,
           orElse: () => {},
@@ -865,7 +873,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         }
       }
     }
-
+    
+    // Если следующее задание найдено, переходим к нему
     if (nextTask != null && nextTask.isNotEmpty) {
       Get.off(
         () => TaskDetailScreen(
@@ -875,6 +884,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         ),
       );
     } else {
+      // Если следующее задание не найдено, возвращаемся к списку
       Get.back();
       Get.snackbar(
         "Информация",

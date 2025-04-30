@@ -1,13 +1,12 @@
-import 'package:devup/Values/values.dart';
-import 'package:devup/widgets/DarkBackground/darkRadialBackground.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:devup/Values/values.dart';
+import 'package:devup/widgets/DarkBackground/darkRadialBackground.dart';
 
 class InterviewSimulationScreen extends StatefulWidget {
   @override
-  _InterviewSimulationScreenState createState() =>
-      _InterviewSimulationScreenState();
+  _InterviewSimulationScreenState createState() => _InterviewSimulationScreenState();
 }
 
 class _InterviewSimulationScreenState extends State<InterviewSimulationScreen> {
@@ -16,7 +15,7 @@ class _InterviewSimulationScreenState extends State<InterviewSimulationScreen> {
   bool _isInterviewStarted = false;
   bool _isInterviewFinished = false;
   int _currentQuestionIndex = 0;
-
+  
   final List<String> _interviewQuestions = [
     "Расскажите о себе и своем опыте в программировании.",
     "Какие проекты вы реализовали с использованием React?",
@@ -29,7 +28,7 @@ class _InterviewSimulationScreenState extends State<InterviewSimulationScreen> {
     "Как вы тестируете React-компоненты?",
     "Какие инструменты разработчика вы используете при работе с React?",
   ];
-
+  
   @override
   void initState() {
     super.initState();
@@ -38,20 +37,20 @@ class _InterviewSimulationScreenState extends State<InterviewSimulationScreen> {
       false,
     );
   }
-
+  
   @override
   void dispose() {
     _messageController.dispose();
     super.dispose();
   }
-
+  
   void _startInterview() {
     setState(() {
       _isInterviewStarted = true;
       _addMessage(_interviewQuestions[_currentQuestionIndex], false);
     });
   }
-
+  
   void _nextQuestion() {
     setState(() {
       _currentQuestionIndex++;
@@ -62,7 +61,7 @@ class _InterviewSimulationScreenState extends State<InterviewSimulationScreen> {
       }
     });
   }
-
+  
   void _finishInterview() {
     setState(() {
       _isInterviewFinished = true;
@@ -81,14 +80,15 @@ class _InterviewSimulationScreenState extends State<InterviewSimulationScreen> {
       );
     });
   }
-
+  
   void _sendMessage() {
     if (_messageController.text.trim().isEmpty) return;
-
+    
     final userMessage = _messageController.text.trim();
     _addMessage(userMessage, true);
     _messageController.clear();
-
+    
+    // Имитация задержки ответа AI
     Future.delayed(Duration(seconds: 2), () {
       if (!_isInterviewFinished) {
         if (_isInterviewStarted) {
@@ -103,7 +103,7 @@ class _InterviewSimulationScreenState extends State<InterviewSimulationScreen> {
       }
     });
   }
-
+  
   void _addMessage(String text, bool isUser) {
     setState(() {
       _messages.add(Message(
@@ -113,7 +113,7 @@ class _InterviewSimulationScreenState extends State<InterviewSimulationScreen> {
       ));
     });
   }
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -130,8 +130,10 @@ class _InterviewSimulationScreenState extends State<InterviewSimulationScreen> {
                 Expanded(
                   child: _buildMessagesList(),
                 ),
-                if (!_isInterviewFinished) _buildMessageInput(),
-                if (_isInterviewFinished) _buildInterviewResults(),
+                if (!_isInterviewFinished)
+                  _buildMessageInput(),
+                if (_isInterviewFinished)
+                  _buildInterviewResults(),
               ],
             ),
           ),
@@ -139,7 +141,7 @@ class _InterviewSimulationScreenState extends State<InterviewSimulationScreen> {
       ),
     );
   }
-
+  
   Widget _buildAppBar() {
     return Container(
       padding: EdgeInsets.all(20),
@@ -228,7 +230,7 @@ class _InterviewSimulationScreenState extends State<InterviewSimulationScreen> {
       ),
     );
   }
-
+  
   Widget _buildMessagesList() {
     return ListView.builder(
       padding: EdgeInsets.all(20),
@@ -240,7 +242,7 @@ class _InterviewSimulationScreenState extends State<InterviewSimulationScreen> {
       },
     );
   }
-
+  
   Widget _buildMessageBubble(Message message) {
     return Align(
       alignment: message.isUser ? Alignment.centerRight : Alignment.centerLeft,
@@ -277,9 +279,7 @@ class _InterviewSimulationScreenState extends State<InterviewSimulationScreen> {
               _formatTime(message.timestamp),
               style: GoogleFonts.firaCode(
                 fontSize: 10,
-                color: message.isUser
-                    ? Colors.white.withOpacity(0.7)
-                    : AppColors.textSecondary,
+                color: message.isUser ? Colors.white.withOpacity(0.7) : AppColors.textSecondary,
               ),
             ),
           ],
@@ -287,7 +287,7 @@ class _InterviewSimulationScreenState extends State<InterviewSimulationScreen> {
       ),
     );
   }
-
+  
   Widget _buildMessageInput() {
     return Container(
       padding: EdgeInsets.all(20),
@@ -360,7 +360,7 @@ class _InterviewSimulationScreenState extends State<InterviewSimulationScreen> {
       ),
     );
   }
-
+  
   Widget _buildInterviewResults() {
     return Container(
       padding: EdgeInsets.all(20),
@@ -472,7 +472,7 @@ class _InterviewSimulationScreenState extends State<InterviewSimulationScreen> {
       ),
     );
   }
-
+  
   String _formatTime(DateTime timestamp) {
     return "${timestamp.hour.toString().padLeft(2, '0')}:${timestamp.minute.toString().padLeft(2, '0')}";
   }
@@ -482,10 +482,10 @@ class Message {
   final String text;
   final bool isUser;
   final DateTime timestamp;
-
+  
   Message({
     required this.text,
     required this.isUser,
     required this.timestamp,
   });
-}
+} 
