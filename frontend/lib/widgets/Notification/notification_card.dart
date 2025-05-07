@@ -1,7 +1,7 @@
-import 'package:devup/Values/values.dart';
-import 'package:devup/widgets/dummy/profile_dummy.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:devup/Values/values.dart';
+import 'package:devup/widgets/dummy/profile_dummy.dart';
 
 class NotificationCard extends StatelessWidget {
   final bool read;
@@ -99,7 +99,7 @@ class NotificationCard extends StatelessWidget {
                                   ),
                                   children: <TextSpan>[
                                     TextSpan(
-                                        text: 'testtest',
+                                        text: '@tranmautritam',
                                         style: GoogleFonts.lato(
                                             color: HexColor.fromHex("EF9EF1"),
                                             fontWeight: FontWeight.bold)),

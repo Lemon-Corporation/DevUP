@@ -1,7 +1,10 @@
-name: DevUp
+name: devup
 description: Приложение для программистов, помогающее подготовиться к техническим собеседованиям в игровой форме.
 
-publish_to: 'none'
+# The following line prevents the package from being accidentally published to
+# pub.dev using `pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
 version: 1.0.0+1
 
 environment:
@@ -10,6 +13,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.5
   responsive_builder: ^0.4.3
   google_fonts: ^4.0.4
@@ -24,28 +31,36 @@ dependencies:
   table_calendar: ^3.0.8
   glassmorphism: ^3.0.0
   percent_indicator: ^4.2.4
-  video_player: ^2.9.3
+  video_player: ^2.6.1
+  speech_to_text: ^6.1.1
+
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_launcher_icons: ^0.13.1
+  flutter_launcher_icons: ^0.11.0
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
 
-flutter_launcher_icons:
-  android: true
+# The following section is specific to Flutter.
+
+
+flutter_icons:
+  android: "launcher_icon"
   ios: true
-  image_path: "assets/icon/iconMain.png"
-  web:
-    generate: true
-    image_path: "assets/icon/iconMain.png"
-
+  image_path: "assets/icon/icon.png"
 flutter:
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
   uses-material-design: true
 
   assets:
     - assets/icon/icon.png
     - assets/icon/user-icon.png
     - assets/videos/Welcome_Gekko_V10.mp4
+    - assets/videos/AI_Interview.MP4
 
   fonts:
     - family: Montserrat
@@ -69,3 +84,4 @@ flutter:
           weight: 300
         - asset: assets/fonts/Unbounded-Bold.ttf
           weight: 700
+  

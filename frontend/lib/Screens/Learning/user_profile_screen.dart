@@ -200,7 +200,7 @@ class UserProfileScreen extends StatelessWidget {
             ),
             child: Center(
               child: Text(
-                "NM",
+                "UR",
                 style: TextStyle(
                   fontFamily: 'Unbounded',
                   fontSize: 24,
@@ -219,7 +219,7 @@ class UserProfileScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      "Nina Melnikova",
+                      "My Username",
                       style: TextStyle(
                         fontFamily: 'Unbounded',
                         fontSize: 18,

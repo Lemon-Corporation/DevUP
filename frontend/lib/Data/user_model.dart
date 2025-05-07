@@ -10,6 +10,7 @@ class UserModel {
   final RxList<String> completedTasks = <String>[].obs;
   final RxList<String> achievements = <String>[].obs;
 
+  // Синглтон
   static final UserModel _instance = UserModel._internal();
 
   factory UserModel() {
@@ -17,6 +18,7 @@ class UserModel {
   }
 
   UserModel._internal() {
+    // Инициализация начальных значений
     progress.value = {
       "TypeScript": 0.6,
       "JavaScript Основы": 0.8,
@@ -26,6 +28,7 @@ class UserModel {
     };
   }
 
+  // Методы для обновления данных пользователя
 
   void addXP(int amount) {
     xp.value += amount;
@@ -33,11 +36,14 @@ class UserModel {
   }
 
   void _checkLevelUp() {
+    // Простая формула для определения уровня: каждые 500 XP = новый уровень
     int newLevel = (xp.value / 500).floor() + 1;
     if (newLevel > level.value) {
       level.value = newLevel;
+      // Увеличиваем максимальную энергию при повышении уровня
       maxEnergy.value += 5;
       energy.value =
+          maxEnergy.value; // Восстанавливаем энергию при повышении уровня
     }
   }
 
@@ -78,6 +84,7 @@ class UserModel {
     }
   }
 
+  // Геттеры для получения данных
 
   int get currentLevel => level.value;
 
@@ -103,6 +110,7 @@ class UserModel {
     return achievements.contains(achievementId);
   }
 
+  // Метод для восстановления энергии (может вызываться по таймеру)
   void regenerateEnergy() {
     if (energy.value < maxEnergy.value) {
       energy.value++;

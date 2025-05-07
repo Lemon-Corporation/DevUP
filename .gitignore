@@ -1,0 +1,84 @@
+### Flutter ###
+# Flutter/Dart/Pub related
+**/doc/api/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+.idea/
+
+# Dependency directories
+/ios/Pods/
+/ios/Flutter/.last_build_id
+
+# Logs
+logs/
+*.log
+
+# Symbolication
+/ios/Pods/Pods.xcodeproj/xcuserdata/
+/ios/Flutter/.last_build_id
+
+# Android Studio
+/android/.idea/
+/android/.gradle/
+/android/captures/
+/android/gradle.properties
+/android/local.properties
+/android/out/
+/android/build/
+/android/app/build/
+/android/app/gradle.properties
+/android/app/local.properties
+/android/app/out/
+/android/app/src/main/gen/
+/android/app/src/main/java/
+/android/app/src/main/kotlin/
+/android/app/src/main/res/
+/android/app/src/main/assets/
+/android/app/src/main/jniLibs/
+/android/app/src/main/jni/
+/android/app/src/main/cpp/
+/android/app/src/main/aidl/
+/android/app/src/main/rs/
+/android/app/src/main/ml/
+/android/app/src/main/shaders/
+/android/app/src/main/assets/
+/android/app/src/main/res/
+/android/app/src/main/java/
+/android/app/src/main/kotlin/
+/android/app/src/main/jniLibs/
+/android/app/src/main/jni/
+/android/app/src/main/cpp/
+/android/app/src/main/aidl/
+/android/app/src/main/rs/
+/android/app/src/main/ml/
+/android/app/src/main/shaders/
+/android/app/src/main/assets/
+/android/app/src/main/res/
+/android/app/src/main/java/
+/android/app/src/main/kotlin/
+/android/app/src/main/jniLibs/
+/android/app/src/main/jni/
+/android/app/src/main/cpp/
+/android/app/src/main/aidl/
+/android/app/src/main/rs/
+/android/app/src/main/ml/
+/android/app/src/main/shaders/
+
+# IntelliJ
+/ios/.idea/
+/ios/Flutter.iml
+/ios/Flutter.xcworkspace/
+/ios/Podfile.lock
+/ios/Pods/
+/ios/Pods.xcodeproj/
+/ios/Pods.xcworkspace/
+/ios/Pods/Pods.xcodeproj/xcuserdata/
+/ios/Pods/Pods.xcworkspace/xcuserdata/
+/ios/Pods/Pods.xcodeproj/project.xcworkspace/xcuserdata/
+/ios/Pods/Pods.xcodeproj/xcshareddata/
+/ios/Pods/Pods.xcodeproj/xcshareddata/xcschemes/

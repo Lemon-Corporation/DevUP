@@ -2,16 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-
 import '../../Data/models/course_model.dart';
 import '../../Data/services/data_service.dart';
+import '../../Utils/app_extensions.dart';
 import 'tasks_list_screen.dart';
 
 class CourseDetailScreen extends StatefulWidget {
   final String courseId;
 
-  const CourseDetailScreen({Key? key, required this.courseId})
-      : super(key: key);
+  const CourseDetailScreen({Key? key, required this.courseId}) : super(key: key);
 
   @override
   _CourseDetailScreenState createState() => _CourseDetailScreenState();
@@ -20,42 +19,41 @@ class CourseDetailScreen extends StatefulWidget {
 class _CourseDetailScreenState extends State<CourseDetailScreen> {
   Course? _course;
   double _completionPercentage = 0.0;
-
+  
   @override
   void initState() {
     super.initState();
     _loadCourseData();
   }
-
+  
   void _loadCourseData() {
     // Получаем курс из DataService
     print("Loading course with ID: ${widget.courseId}");
-    print(
-        "Available courses: ${DataService.to.courses.map((c) => '${c.id}: ${c.title}').toList()}");
-
+    print("Available courses: ${DataService.to.courses.map((c) => '${c.id}: ${c.title}').toList()}");
+    
     final course = DataService.to.getCourseById(widget.courseId);
     print("Found course: ${course?.title ?? 'null'}");
-
+    
     if (course != null) {
       setState(() {
         _course = course;
-
-        final userProgress =
-            DataService.to.currentUser.coursesProgress[course.id];
+        
+        // Получаем прогресс курса из данных пользователя
+        final userProgress = DataService.to.currentUser.coursesProgress[course.id];
         if (userProgress != null) {
           _completionPercentage = userProgress.completionPercentage;
         }
       });
     } else {
+      // If we can't find the course in the DataService, try using the static method
       print("Trying static Course.getCourseById method");
       final staticCourse = Course.getCourseById(widget.courseId);
       print("Found course via static method: ${staticCourse?.title ?? 'null'}");
-
+      
       if (staticCourse != null) {
         setState(() {
           _course = staticCourse;
-          final userProgress =
-              DataService.to.currentUser.coursesProgress[staticCourse.id];
+          final userProgress = DataService.to.currentUser.coursesProgress[staticCourse.id];
           if (userProgress != null) {
             _completionPercentage = userProgress.completionPercentage;
           }
@@ -65,6 +63,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
       }
     }
 
+    // Add a fallback to use static method after 2 seconds if DataService failed
     Future.delayed(Duration(seconds: 2), () {
       if (mounted && _course == null) {
         print("DataService timeout - trying static method");
@@ -74,16 +73,18 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
             _course = staticCourse;
           });
         } else {
+          // If static method also fails, create a mock course as last resort
           print("Static method failed - creating mock course");
           _createMockCourse();
         }
       }
     });
   }
-
+  
   @override
   Widget build(BuildContext context) {
     if (_course == null) {
+      // Add a fallback to use static method after 2 seconds if DataService failed
       Future.delayed(Duration(seconds: 2), () {
         if (mounted && _course == null) {
           print("DataService timeout - trying static method");
@@ -93,12 +94,13 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
               _course = staticCourse;
             });
           } else {
+            // If static method also fails, create a mock course as last resort
             print("Static method failed - creating mock course");
             _createMockCourse();
           }
         }
       });
-
+      
       return Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(
@@ -133,7 +135,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
         ),
       );
     }
-
+    
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -183,7 +185,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
       ),
     );
   }
-
+  
   Widget _buildCourseHero() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -231,8 +233,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                   Row(
                     children: [
                       Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
                           color: Color(0xFF5B5FEF).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(20),
@@ -248,8 +249,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                       ),
                       SizedBox(width: 8),
                       Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
                           color: Color(0xFF00C9B1).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(20),
@@ -354,7 +354,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
       ],
     );
   }
-
+  
   Widget _buildCourseStats() {
     return Container(
       padding: EdgeInsets.all(20),
@@ -380,7 +380,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
       ),
     );
   }
-
+  
   Widget _buildStatItem(String label, String value) {
     return Column(
       children: [
@@ -403,7 +403,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
       ],
     );
   }
-
+  
   Widget _buildCourseDescription() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -428,7 +428,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
       ],
     );
   }
-
+  
   Widget _buildModulesList() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -454,105 +454,25 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
       ],
     );
   }
-
+  
   // Module card with expandable/collapsible lessons
   Widget _buildModuleCard(Module module, int index) {
-    return StatefulBuilder(// Use StatefulBuilder to handle expansion state
-        builder: (context, setState) {
-      bool isExpanded = false;
-
-      return Column(
-        children: [
-          Container(
-            margin: EdgeInsets.only(bottom: isExpanded ? 0 : 16),
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Color(0xFFF8F9FA),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
-                bottomLeft:
-                    isExpanded ? Radius.circular(0) : Radius.circular(16),
-                bottomRight:
-                    isExpanded ? Radius.circular(0) : Radius.circular(16),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: Offset(0, 4),
-                ),
-              ],
-            ),
-            child: InkWell(
-              onTap: () {
-                setState(() {
-                  isExpanded = !isExpanded;
-                });
-              },
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Color(0xFF5B5FEF).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${index + 1}',
-                        style: GoogleFonts.montserrat(
-                          color: Color(0xFF5B5FEF),
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          module.title,
-                          style: GoogleFonts.montserrat(
-                            color: Color(0xFF2D3142),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          '${module.lessons.length} уроков',
-                          style: GoogleFonts.montserrat(
-                            color: Colors.grey[600],
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(
-                    isExpanded
-                        ? Icons.keyboard_arrow_up
-                        : Icons.keyboard_arrow_down,
-                    color: Color(0xFF5B5FEF),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          // Display lessons if module is expanded
-          if (isExpanded)
+    return StatefulBuilder( // Use StatefulBuilder to handle expansion state
+      builder: (context, setState) {
+        bool isExpanded = false;
+        
+        return Column(
+          children: [
             Container(
-              margin: EdgeInsets.only(bottom: 16),
+              margin: EdgeInsets.only(bottom: isExpanded ? 0 : 16),
+              padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Color(0xFFF8F9FA),
                 borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(16),
-                  bottomRight: Radius.circular(16),
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                  bottomLeft: isExpanded ? Radius.circular(0) : Radius.circular(16),
+                  bottomRight: isExpanded ? Radius.circular(0) : Radius.circular(16),
                 ),
                 boxShadow: [
                   BoxShadow(
@@ -562,22 +482,97 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                   ),
                 ],
               ),
-              child: Column(
-                children: module.lessons
-                    .map((lesson) => _buildLessonItem(lesson))
-                    .toList(),
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    isExpanded = !isExpanded;
+                  });
+                },
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Color(0xFF5B5FEF).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '${index + 1}',
+                          style: GoogleFonts.montserrat(
+                            color: Color(0xFF5B5FEF),
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            module.title,
+                            style: GoogleFonts.montserrat(
+                              color: Color(0xFF2D3142),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            '${module.lessons.length} уроков',
+                            style: GoogleFonts.montserrat(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                      color: Color(0xFF5B5FEF),
+                    ),
+                  ],
+                ),
               ),
             ),
-        ],
-      );
-    });
+            // Display lessons if module is expanded
+            if (isExpanded) 
+              Container(
+                margin: EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(16),
+                    bottomRight: Radius.circular(16),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: module.lessons.map((lesson) => _buildLessonItem(lesson)).toList(),
+                ),
+              ),
+          ],
+        );
+      }
+    );
   }
-
+  
   // Individual lesson item
   Widget _buildLessonItem(Lesson lesson) {
     IconData iconData;
     Color iconColor;
-
+    
     // Different icons based on lesson type
     switch (lesson.type) {
       case LessonType.theory:
@@ -596,17 +591,17 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
         iconData = Icons.info;
         iconColor = Colors.grey;
     }
-
+    
     return InkWell(
       onTap: () {
         // Navigate to appropriate screen based on lesson type
         if (lesson.type == LessonType.task && lesson.taskId != null) {
           // Navigate to task screen
           Get.to(() => TasksListScreen(
-                track: "Junior Frontend (React)",
-                courseId: _course!.id,
-                taskId: lesson.taskId,
-              ));
+            track: "Junior Frontend (React)", 
+            courseId: _course!.id,
+            taskId: lesson.taskId,
+          ));
         } else {
           // Show theory content or other content
           Get.snackbar(
@@ -667,10 +662,10 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
       ),
     );
   }
-
+  
   Widget _buildInstructorInfo() {
     final instructor = _course!.instructor;
-
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -767,7 +762,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
       ],
     );
   }
-
+  
   Widget _buildStartButton() {
     return GestureDetector(
       onTap: () {
@@ -781,12 +776,12 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
             }
           }
         }
-
+        
         Get.to(() => TasksListScreen(
-              track: _course!.technology,
-              courseId: _course!.id,
-              taskId: firstTaskId,
-            ));
+          track: _course!.technology, 
+          courseId: _course!.id,
+          taskId: firstTaskId,
+        ));
       },
       child: Container(
         width: double.infinity,
@@ -823,17 +818,16 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
   // Create a mock course as a fallback when all other methods fail
   void _createMockCourse() {
     if (!mounted) return;
-
+    
     print("Creating mock course with ID: ${widget.courseId}");
-
+    
     // For Junior Frontend course
     if (widget.courseId == "junior-frontend") {
       setState(() {
         _course = Course(
           id: "junior-frontend",
           title: "Junior Frontend (React)",
-          description:
-              "Курс по фронтенд-разработке с использованием React. Идеально подходит для начинающих разработчиков.",
+          description: "Курс по фронтенд-разработке с использованием React. Идеально подходит для начинающих разработчиков.",
           level: "Junior",
           technology: "React",
           field: "Frontend",
@@ -926,15 +920,14 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
         );
         _completionPercentage = 0.35; // Set some initial progress
       });
-    }
+    } 
     // For Junior Backend Django course
     else if (widget.courseId == "junior-backend-django") {
       setState(() {
         _course = Course(
           id: "junior-backend-django",
           title: "Junior Backend (Django)",
-          description:
-              "Полный курс по бэкенд-разработке с использованием Django. Изучите основы веб-разработки на стороне сервера.",
+          description: "Полный курс по бэкенд-разработке с использованием Django. Изучите основы веб-разработки на стороне сервера.",
           level: "Junior",
           technology: "Django",
           field: "Backend",
@@ -1041,7 +1034,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
           reviewsCount: 100,
           emoji: "💻",
           estimatedHours: 20,
-          totalTasksCount: 10,
+A          totalTasksCount: 10,
           totalLessonsCount: 20,
           modules: [
             Module(
@@ -1084,17 +1077,16 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
   // Method to mark a task as completed and update progress
   void markTaskCompleted(String taskId) {
     if (_course == null) return;
-
+    
     // Update progress percentage
     setState(() {
       // Increase progress by a small amount (would be more precise in a real app)
       _completionPercentage = (_completionPercentage + 0.05).clamp(0.0, 1.0);
-
+      
       // Update user progress in DataService
       if (DataService.to != null) {
         try {
-          final courseProgress =
-              DataService.to.currentUser.coursesProgress[_course!.id];
+          final courseProgress = DataService.to.currentUser.coursesProgress[_course!.id];
           if (courseProgress != null) {
             final updatedProgress = courseProgress.addCompletedTask(taskId);
             DataService.to.updateCourseProgress(_course!.id, updatedProgress);
@@ -1105,4 +1097,4 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
       }
     });
   }
-}
+} 
