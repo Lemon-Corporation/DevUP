@@ -1,44 +1,44 @@
-import logging
 import asyncpg
-import redis.asyncio as aioredis
-
-from app.core.config import settings
-from app.db.init_db import init_db, init_db_pool
-
-logger = logging.getLogger("analyze_service")
 
 
-async def startup_event(app):
+async def init_db_pool(dsn: str) -> asyncpg.Pool:
     """
-    Инициализирует приложение при старте:
-    - Создает пул подключений к PostgreSQL и инициализирует схему БД.
-    - Устанавливает соединение с Redis.
+    Создает пул подключений к PostgreSQL.
 
     Args:
-        app (FastAPI): экземпляр FastAPI приложения.
+        dsn (str): строка подключения.
+
+    Returns:
+        asyncpg.Pool: пул подключений.
     """
-    app.state.db_pool = await init_db_pool(settings.POSTGRES_DSN)
-    await init_db(app.state.db_pool)
-
-    app.state.redis_client = aioredis.from_url(
-        settings.REDIS_DSN,
-        encoding="utf-8",
-        decode_responses=True
-    )
-    logger.info("AnalyzeService started.")
+    return await asyncpg.create_pool(dsn=dsn, min_size=1, max_size=10)
 
 
-async def shutdown_event(app):
+async def init_db(pool: asyncpg.Pool):
     """
-    Завершает работу приложения:
-    - Закрывает пул подключений к PostgreSQL.
-    - Закрывает соединение с Redis.
+    Инициализирует схему БД при старте:
+    - Таблица user_progress
+    - Таблица global_stats
 
     Args:
-        app (FastAPI): экземпляр FastAPI приложения.
+        pool (asyncpg.Pool): пул подключений.
     """
-    if app.state.db_pool:
-        await app.state.db_pool.close()
-    if app.state.redis_client:
-        await app.state.redis_client.close()
-    logger.info("AnalyzeService shutdown.")
+    async with pool.acquire() as conn:
+        await conn.execute("""
+            CREATE TABLE IF NOT EXISTS user_progress (
+                user_id INT PRIMARY KEY,
+                tasks_completed INT DEFAULT 0
+            );
+        """)
+        await conn.execute("""
+            CREATE TABLE IF NOT EXISTS global_stats (
+                id SERIAL PRIMARY KEY,
+                total_users INT DEFAULT 0,
+                total_tasks_completed INT DEFAULT 0
+            );
+        """)
+        row = await conn.fetchrow("SELECT COUNT(*) AS cnt FROM global_stats;")
+        if row["cnt"] == 0:
+            await conn.execute(
+                "INSERT INTO global_stats (total_users, total_tasks_completed) VALUES (0, 0);"
+            )

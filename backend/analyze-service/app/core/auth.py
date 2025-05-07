@@ -6,13 +6,14 @@ from typing import Optional
 
 from app.core.config import settings
 
-# Эндпоинт получения токена генерируется внешним Auth-сервисом
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 class TokenData(BaseModel):
     """
-    Модель данных токена, содержащая идентификатор пользователя и его роль.
+    Модель данных из JWT:
+    - sub: идентификатор пользователя
+    - role: роль пользователя ("user" или "admin")
     """
     sub: Optional[str] = None
     role: Optional[str] = None
@@ -20,63 +21,47 @@ class TokenData(BaseModel):
 
 def verify_token(token: str) -> TokenData:
     """
-    Проверяет и декодирует JWT-токен.
+    Декодирует и проверяет JWT-токен.
 
     Args:
-        token (str): JWT-токен.
+        token (str): JWT из заголовка Authorization.
 
     Returns:
-        TokenData: данные из токена (идентификатор пользователя и роль).
+        TokenData: данные пользователя из токена.
 
     Raises:
-        HTTPException: если токен недействителен.
+        HTTPException: если токен некорректен.
     """
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-        user_id: Optional[str] = payload.get("sub")
-        if user_id is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid authentication credentials",
-            )
-        token_data = TokenData(sub=user_id, role=payload.get("role"))
-        return token_data
+        user_id = payload.get("sub")
+        if not user_id:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                detail="Invalid authentication credentials")
+        return TokenData(sub=user_id, role=payload.get("role"))
     except JWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-        )
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="Could not validate credentials")
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> TokenData:
     """
-    Получает текущего пользователя, проверяя JWT-токен.
-
-    Args:
-        token (str): токен из запроса.
-
-    Returns:
-        TokenData: данные аутентифицированного пользователя.
+    Зависимость FastAPI: возвращает TokenData текущего пользователя.
     """
     return verify_token(token)
 
 
 async def get_current_admin(current_user: TokenData = Depends(get_current_user)) -> TokenData:
     """
-    Проверяет, что текущий пользователь имеет роль "admin".
+    Зависимость FastAPI: проверяет, что роль пользователя — "admin".
 
     Args:
-        current_user (TokenData): данные текущего пользователя.
-
-    Returns:
-        TokenData: данные пользователя, если он администратор.
+        current_user (TokenData): данные из get_current_user.
 
     Raises:
-        HTTPException: если пользователь не является администратором.
+        HTTPException: если роль не "admin".
     """
     if current_user.role != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not enough privileges",
-        )
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail="Not enough privileges")
     return current_user
