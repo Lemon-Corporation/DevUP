@@ -1,0 +1,7 @@
+Flask==2.3.2
+Flask-SQLAlchemy==3.0.5
+Flask-Migrate==4.0.4
+psycopg2-binary==2.9.6
+python-dotenv==1.0.0
+flasgger==0.9.7.1
+marshmallow==3.21.1
