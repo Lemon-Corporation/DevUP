@@ -4,7 +4,7 @@ asyncpg==0.30.0
 click==8.1.8
 ecdsa==0.19.1
 fastapi==0.115.12
-h11==0.14.0
+h11==0.16.0
 idna==3.10
 iniconfig==2.1.0
 packaging==24.2
