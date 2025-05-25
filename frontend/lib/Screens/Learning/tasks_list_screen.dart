@@ -8,10 +8,12 @@ import 'package:devup/Screens/Learning/intro_to_js_page.dart';
 import 'package:devup/Screens/Learning/variables_types_page.dart';
 import 'package:devup/Screens/Learning/operators_expressions_page.dart';
 import 'package:devup/Screens/Learning/enhanced_test_screen.dart';
-import 'package:devup/Screens/Learning/calculator_project_screen.dart';
+import 'package:devup/Screens/Learning/functions_page.dart';
+import 'package:devup/Screens/Learning/closures_page.dart';
+import 'package:devup/Screens/Learning/form_validation_project.dart';
+import 'package:devup/Screens/Learning/guess_number_game.dart';
 import 'package:devup/Values/values.dart';
 import 'package:devup/widgets/DarkBackground/darkRadialBackground.dart';
-import 'package:devup/widgets/Navigation/app_header.dart';
 import 'package:devup/widgets/Learning/task_path_widget.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:devup/Services/progress_manager.dart';
@@ -422,6 +424,16 @@ class _TasksListScreenState extends State<TasksListScreen> {
   }
 
   Widget _buildTasksList() {
+    if (selectedModuleIndex == 0) {
+      return _buildModule1Tasks();
+    } else if (selectedModuleIndex == 1) {
+      return _buildModule2Tasks();
+    } else {
+      return _buildComingSoonModule();
+    }
+  }
+
+  Widget _buildModule1Tasks() {
     return ListView(
       padding: EdgeInsets.symmetric(horizontal: 20),
       children: [
@@ -431,18 +443,30 @@ class _TasksListScreenState extends State<TasksListScreen> {
           title: "Введение в JavaScript",
           duration: "15 мин",
           isCompleted: true,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const IntroToJsPage()),
+          ),
         ),
         SizedBox(height: 15),
         _buildTheoryCard(
           title: "Переменные и типы данных",
           duration: "20 мин",
           isCompleted: true,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const VariablesTypesPage()),
+          ),
         ),
         SizedBox(height: 15),
         _buildTheoryCard(
           title: "Операторы и выражения",
           duration: "25 мин",
           isCompleted: false,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const OperatorsExpressionsPage()),
+          ),
         ),
         
         SizedBox(height: 30),
@@ -478,14 +502,128 @@ class _TasksListScreenState extends State<TasksListScreen> {
         SizedBox(height: 10),
         
         _buildProjectCard(
-          title: "Калькулятор на JavaScript",
-          description: "Создайте полнофункциональный калькулятор с использованием HTML, CSS и JavaScript",
-          xp: 50,
+          title: "Форма валидации",
+          description: "Создайте интерактивную форму регистрации с валидацией полей",
+          xp: 40,
           isLocked: !_areAllTestsCompleted(),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const FormValidationProject()),
+          ),
         ),
         
         SizedBox(height: 30),
       ],
+    );
+  }
+
+  Widget _buildModule2Tasks() {
+    // Состояние прохождения тестов второго модуля
+    Map<String, bool> module2Tests = {
+      'js_functions_test': ProgressManager.isTestCompleted('js_functions_test'),
+      'js_closures_test': ProgressManager.isTestCompleted('js_closures_test'),
+      'js_functions_code': ProgressManager.isTestCompleted('js_functions_code'),
+    };
+
+    bool areAllModule2TestsCompleted = module2Tests.values.every((completed) => completed);
+
+    return ListView(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      children: [
+        _buildSectionTitle("Теория", Icons.menu_book),
+        SizedBox(height: 10),
+        _buildTheoryCard(
+          title: "Функции в JavaScript",
+          duration: "30 мин",
+          isCompleted: false,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const FunctionsPage()),
+          ),
+        ),
+        SizedBox(height: 15),
+        _buildTheoryCard(
+          title: "Замыкания и область видимости",
+          duration: "35 мин",
+          isCompleted: false,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ClosuresPage()),
+          ),
+        ),
+        
+        SizedBox(height: 30),
+        _buildSectionTitle("Практика", Icons.code),
+        SizedBox(height: 10),
+        
+        // Тесты второго модуля
+        _buildEnhancedTestCard(
+          testData: JSTestData.functionsTest,
+          isCompleted: module2Tests['js_functions_test'] ?? false,
+        ),
+        SizedBox(height: 15),
+        
+        _buildEnhancedTestCard(
+          testData: JSTestData.closuresTest,
+          isCompleted: module2Tests['js_closures_test'] ?? false,
+        ),
+        SizedBox(height: 15),
+        
+        _buildEnhancedTestCard(
+          testData: JSTestData.functionsCodeAnalysis,
+          isCompleted: module2Tests['js_functions_code'] ?? false,
+        ),
+        
+        SizedBox(height: 30),
+        _buildSectionTitle("Проект модуля", Icons.assignment),
+        SizedBox(height: 10),
+        
+        _buildProjectCard(
+          title: "Игра \"Угадай число\"",
+          description: "Создайте интерактивную игру с использованием функций, замыканий и модульного паттерна",
+          xp: 50,
+          isLocked: !areAllModule2TestsCompleted,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const GuessNumberGame()),
+          ),
+        ),
+        
+        SizedBox(height: 30),
+      ],
+    );
+  }
+
+  Widget _buildComingSoonModule() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.construction,
+            size: 80,
+            color: AppColors.textSecondary,
+          ),
+          SizedBox(height: 20),
+          Text(
+            'Модуль в разработке',
+            style: GoogleFonts.firaCode(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          SizedBox(height: 10),
+          Text(
+            'Скоро здесь появятся новые уроки!',
+            style: GoogleFonts.firaCode(
+              fontSize: 16,
+              color: AppColors.textSecondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 
@@ -514,26 +652,10 @@ class _TasksListScreenState extends State<TasksListScreen> {
     required String title,
     required String duration,
     required bool isCompleted,
+    required VoidCallback onTap,
   }) {
     return GestureDetector(
-      onTap: () {
-        if (title == "Введение в JavaScript") {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const IntroToJsPage()),
-          );
-        } else if (title == "Переменные и типы данных") {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const VariablesTypesPage()),
-          );
-        } else if (title == "Операторы и выражения") {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const OperatorsExpressionsPage()),
-          );
-        }
-      },
+      onTap: onTap,
       child: Container(
         padding: EdgeInsets.all(15),
           decoration: BoxDecoration(
@@ -780,19 +902,10 @@ class _TasksListScreenState extends State<TasksListScreen> {
     required String description,
     required int xp,
     required bool isLocked,
+    required VoidCallback onTap,
   }) {
     return GestureDetector(
-      onTap: isLocked ? null : () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CalculatorProjectScreen(
-              courseId: widget.courseId ?? '',
-              track: widget.track,
-            ),
-          ),
-        );
-      },
+      onTap: isLocked ? null : onTap,
       child: Container(
         padding: EdgeInsets.all(20),
           decoration: BoxDecoration(

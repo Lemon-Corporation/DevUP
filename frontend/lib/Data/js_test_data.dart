@@ -479,27 +479,415 @@ console.log(!z && !w);   // Результат 5""",
     };
   }
 
-  // Получить все тесты
+  // ========== МОДУЛЬ 2: ФУНКЦИИ И ОБЛАСТЬ ВИДИМОСТИ ==========
+  
+  // Расширенная база вопросов для функций
+  static final List<Map<String, dynamic>> _functionsQuestionsPool = [
+    // ========== ЛЕГКИЕ ВОПРОСЫ (базовые концепции) ==========
+    {
+      "question": "Как правильно объявить функцию в JavaScript?",
+      "options": ["function myFunc() {}", "def myFunc():", "func myFunc() {}", "function: myFunc() {}"],
+      "correctAnswer": 0,
+      "explanation": "В JavaScript функции объявляются с помощью ключевого слова 'function', за которым следует имя функции и круглые скобки.",
+      "wrongExplanation": "Синтаксис 'function имя() {}' - это стандартный способ объявления функций в JavaScript."
+    },
+    {
+      "question": "Что нужно написать, чтобы вызвать функцию с именем 'sayHello'?",
+      "options": ["sayHello()", "call sayHello", "sayHello", "run sayHello()"],
+      "correctAnswer": 0,
+      "explanation": "Для вызова функции нужно написать её имя, за которым следуют круглые скобки ().",
+      "wrongExplanation": "Круглые скобки () обязательны для вызова функции, даже если она не принимает параметры."
+    },
+    {
+      "question": "Как передать значение 5 в функцию greet?",
+      "options": ["greet(5)", "greet[5]", "greet{5}", "greet = 5"],
+      "correctAnswer": 0,
+      "explanation": "Аргументы передаются в функцию внутри круглых скобок при её вызове.",
+      "wrongExplanation": "Для передачи аргументов используются круглые скобки, а не квадратные или фигурные."
+    },
+    {
+      "question": "Что делает ключевое слово 'return' в функции?",
+      "options": ["Возвращает значение из функции", "Останавливает программу", "Создает новую функцию", "Удаляет функцию"],
+      "correctAnswer": 0,
+      "explanation": "return возвращает значение из функции и завершает её выполнение.",
+      "wrongExplanation": "return - это способ вернуть результат работы функции и передать его в место вызова."
+    },
+    {
+      "question": "Что выведет console.log(add(2, 3)) для функции function add(a, b) { return a + b; }?",
+      "options": ["5", "23", "undefined", "error"],
+      "correctAnswer": 0,
+      "explanation": "Функция складывает два числа: 2 + 3 = 5.",
+      "wrongExplanation": "Оператор + с числами выполняет математическое сложение, а не конкатенацию строк."
+    },
+    {
+      "question": "Как создать стрелочную функцию, которая возвращает сумму двух чисел?",
+      "options": ["(a, b) => a + b", "a, b -> a + b", "function(a, b) => a + b", "=> (a, b) a + b"],
+      "correctAnswer": 0,
+      "explanation": "Стрелочные функции используют синтаксис (параметры) => выражение.",
+      "wrongExplanation": "Стрелочные функции - это краткий способ записи функций с помощью символа =>"
+    },
+    
+    // ========== СРЕДНИЕ ВОПРОСЫ ==========
+    {
+      "question": "Что выведет console.log(typeof function() {})?",
+      "options": ["function", "object", "undefined", "string"],
+      "correctAnswer": 0,
+      "explanation": "В JavaScript функции имеют тип 'function'. Это единственный callable тип в языке.",
+      "wrongExplanation": "Функции в JavaScript - это специальный тип данных 'function', не объекты в контексте typeof."
+    },
+    {
+      "question": "Что произойдет при вызове функции до ее объявления?\nconst result = myFunc();\nfunction myFunc() { return 'Hello'; }",
+      "options": ["'Hello'", "undefined", "ReferenceError", "TypeError"],
+      "correctAnswer": 0,
+      "explanation": "Function declarations поднимаются (hoisting) полностью, включая их реализацию, поэтому функцию можно вызвать до объявления.",
+      "wrongExplanation": "В отличие от var, function declarations поднимаются целиком, а не только объявление."
+    },
+    {
+      "question": "Что выведет console.log(func.length) для function func(a, b, c = 5) {}?",
+      "options": ["2", "3", "0", "undefined"],
+      "correctAnswer": 0,
+      "explanation": "Свойство length функции возвращает количество параметров ДО первого параметра с значением по умолчанию.",
+      "wrongExplanation": "Параметры со значениями по умолчанию не учитываются в func.length."
+    },
+    
+    // ========== СЛОЖНЫЕ ВОПРОСЫ ==========
+    {
+      "question": "Что выведет этот код?\nconst func = function() { return 'A'; };\nfunction func() { return 'B'; }\nconsole.log(func());",
+      "options": ["'A'", "'B'", "TypeError", "ReferenceError"],
+      "correctAnswer": 0,
+      "explanation": "Function declaration поднимается первым, затем переменная func переназначается на function expression, поэтому результат 'A'.",
+      "wrongExplanation": "Hoisting работает так: сначала поднимаются function declarations, затем выполняются присваивания переменных."
+    },
+    {
+      "question": "Что выведет console.log(add(2, 3)) для arrow function?\nconst add = (a, b) => a + b;",
+      "options": ["5", "undefined", "TypeError", "ReferenceError"],
+      "correctAnswer": 2,
+      "explanation": "Arrow functions не поднимаются (hoisting). Попытка вызова до объявления вызовет TypeError: add is not a function.",
+      "wrongExplanation": "Arrow functions ведут себя как переменные - поднимается только объявление, но не значение."
+    },
+    {
+      "question": "Сколько параметров принимает эта функция?\nfunction test(a, b, ...rest) { return arguments.length; }",
+      "options": ["2", "3", "Зависит от вызова", "undefined"],
+      "correctAnswer": 2,
+      "explanation": "Функция может принять любое количество аргументов. arguments.length покажет реальное количество переданных аргументов.",
+      "wrongExplanation": "Rest параметр (...rest) позволяет функции принимать неограниченное количество аргументов."
+    },
+    {
+      "question": "Что выведет этот код?\nfunction outer() {\n  var x = 1;\n  return function inner() {\n    return x++;\n  };\n}\nconst fn = outer();\nconsole.log(fn() + fn());",
+      "options": ["2", "3", "4", "NaN"],
+      "correctAnswer": 1,
+      "explanation": "Первый вызов fn() возвращает 1 и увеличивает x до 2. Второй вызов возвращает 2. Сумма: 1 + 2 = 3.",
+      "wrongExplanation": "Замыкание сохраняет ссылку на переменную x, поэтому изменения сохраняются между вызовами."
+    },
+    {
+      "question": "Что выведет console.log(this) в arrow function в строгом режиме?",
+      "options": ["window", "undefined", "Лексический this", "null"],
+      "correctAnswer": 2,
+      "explanation": "Arrow functions не имеют собственного this, они наследуют this из окружающего лексического контекста.",
+      "wrongExplanation": "Arrow functions всегда используют лексический this, независимо от способа вызова."
+    },
+    {
+      "question": "Что выведет этот код?\nconst obj = {\n  name: 'Test',\n  getName: () => this.name\n};\nconsole.log(obj.getName());",
+      "options": ["'Test'", "undefined", "null", "ReferenceError"],
+      "correctAnswer": 1,
+      "explanation": "Arrow function наследует this из глобального контекста, где this.name undefined, а не из объекта obj.",
+      "wrongExplanation": "Arrow functions не привязываются к объекту при вызове как методы, они сохраняют лексический this."
+    },
+    {
+      "question": "Что выведет console.log(sum(1)(2)(3)) для функции каррирования?",
+      "options": ["6", "function", "undefined", "NaN"],
+      "correctAnswer": 0,
+      "explanation": "Каррированная функция возвращает новую функцию для каждого аргумента, пока не получит все необходимые параметры.",
+      "wrongExplanation": "Каррирование позволяет вызывать функцию частично, передавая аргументы по одному."
+    },
+    {
+      "question": "Что выведет этот код?\nfunction test() {\n  console.log(arguments instanceof Array);\n}\ntest(1, 2, 3);",
+      "options": ["true", "false", "undefined", "TypeError"],
+      "correctAnswer": 1,
+      "explanation": "arguments - это array-like объект, но не настоящий массив. Он не наследуется от Array.prototype.",
+      "wrongExplanation": "arguments имеет length и индексы, но не является экземпляром Array и не имеет методов массива."
+    },
+    {
+      "question": "Что выведет console.log(func.call(null, 1, 2)) в строгом режиме?",
+      "options": ["this = null", "this = window", "this = undefined", "TypeError"],
+      "correctAnswer": 0,
+      "explanation": "В строгом режиме call() с null или undefined не заменяет this на глобальный объект.",
+      "wrongExplanation": "Строгий режим предотвращает автоматическую замену null/undefined на глобальный объект."
+    },
+    {
+      "question": "Что выведет этот код?\nconst arr = [1, 2, 3];\nconst fn = arr.map;\nfn(x => x * 2);",
+      "options": ["[2, 4, 6]", "TypeError", "undefined", "[1, 2, 3]"],
+      "correctAnswer": 1,
+      "explanation": "Метод map потерял контекст (this) при присваивании переменной. Нужно использовать bind() или call().",
+      "wrongExplanation": "Методы объектов теряют свой контекст при извлечении в отдельные переменные."
+    },
+    {
+      "question": "Что выведет console.log(fn.bind(obj)(1, 2)) если fn возвращает this.value + a + b?",
+      "options": ["Зависит от obj.value", "undefined", "NaN", "TypeError"],
+      "correctAnswer": 0,
+      "explanation": "bind() создает новую функцию с привязанным контекстом. Результат зависит от значения obj.value.",
+      "wrongExplanation": "bind() жестко привязывает this к указанному объекту, независимо от способа вызова."
+    },
+    {
+      "question": "Что выведет этот код?\nfunction* generator() {\n  yield 1;\n  yield 2;\n  return 3;\n}\nconst gen = generator();\nconsole.log(gen.next().value);",
+      "options": ["1", "2", "3", "undefined"],
+      "correctAnswer": 0,
+      "explanation": "Первый вызов next() возвращает первое yield значение. Generator функции выполняются пошагово.",
+      "wrongExplanation": "Generator функции приостанавливаются на каждом yield и возобновляются при вызове next()."
+    }
+  ];
+
+  // Расширенная база вопросов для замыканий и области видимости
+  static final List<Map<String, dynamic>> _closuresQuestionsPool = [
+    // ========== ЛЕГКИЕ ВОПРОСЫ (базовые концепции) ==========
+    {
+      "question": "Что такое область видимости (scope) в JavaScript?",
+      "options": ["Место, где переменная доступна", "Тип переменной", "Способ объявления функции", "Метод объекта"],
+      "correctAnswer": 0,
+      "explanation": "Область видимости определяет, где в коде переменная может быть использована.",
+      "wrongExplanation": "Scope - это контекст, в котором переменные и функции доступны для использования."
+    },
+    {
+      "question": "Какая переменная имеет глобальную область видимости?",
+      "options": ["var x = 5; (вне функций)", "let x = 5; (внутри функции)", "const x = 5; (внутри блока)", "function x() {} (внутри функции)"],
+      "correctAnswer": 0,
+      "explanation": "Переменные, объявленные вне всех функций и блоков, имеют глобальную область видимости.",
+      "wrongExplanation": "Глобальные переменные доступны из любого места в программе."
+    },
+    {
+      "question": "В чем разница между var и let в области видимости?",
+      "options": ["var - функциональная, let - блочная", "var - блочная, let - функциональная", "Никакой разницы", "var быстрее let"],
+      "correctAnswer": 0,
+      "explanation": "var имеет функциональную область видимости, а let и const - блочную.",
+      "wrongExplanation": "Это ключевое различие между старым (var) и новым (let/const) способами объявления переменных."
+    },
+    {
+      "question": "Что выведет этот код?\nfunction test() {\n  var x = 1;\n  console.log(x);\n}\ntest();",
+      "options": ["1", "undefined", "ReferenceError", "null"],
+      "correctAnswer": 0,
+      "explanation": "Переменная x объявлена внутри функции и доступна в её области видимости.",
+      "wrongExplanation": "Переменная x существует и имеет значение 1 внутри функции test."
+    },
+    {
+      "question": "Что такое замыкание простыми словами?",
+      "options": ["Функция, которая помнит переменные извне", "Способ закрыть программу", "Тип цикла", "Метод массива"],
+      "correctAnswer": 0,
+      "explanation": "Замыкание - это когда внутренняя функция имеет доступ к переменным внешней функции.",
+      "wrongExplanation": "Замыкания позволяют функциям 'запоминать' переменные из внешней области видимости."
+    },
+    {
+      "question": "Что выведет этот код?\nfunction outer() {\n  var message = 'Привет';\n  function inner() {\n    console.log(message);\n  }\n  inner();\n}\nouter();",
+      "options": ["'Привет'", "undefined", "ReferenceError", "null"],
+      "correctAnswer": 0,
+      "explanation": "Внутренняя функция inner имеет доступ к переменной message из внешней функции outer.",
+      "wrongExplanation": "Это пример замыкания - inner 'видит' переменную message из outer."
+    },
+    
+    // ========== СРЕДНИЕ ВОПРОСЫ ==========
+    {
+      "question": "Что выведет этот код?\nfor (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 100);\n}",
+      "options": ["0, 1, 2", "3, 3, 3", "undefined", "ReferenceError"],
+      "correctAnswer": 1,
+      "explanation": "var имеет функциональную область видимости. К моменту выполнения setTimeout цикл завершен и i = 3.",
+      "wrongExplanation": "Все setTimeout функции ссылаются на одну и ту же переменную i, которая изменяется в цикле."
+    },
+    {
+      "question": "Как исправить предыдущий код с помощью IIFE?",
+      "options": ["(function(j) { setTimeout(() => console.log(j), 100); })(i)", "Использовать let", "Использовать const", "Все варианты"],
+      "correctAnswer": 3,
+      "explanation": "IIFE создает новую область видимости для каждой итерации, let/const имеют блочную область видимости.",
+      "wrongExplanation": "Все перечисленные способы создают отдельную область видимости для каждой итерации цикла."
+    },
+    {
+      "question": "Что выведет этот код?\nfunction createCounter() {\n  let count = 0;\n  return {\n    increment: () => ++count,\n    decrement: () => --count,\n    value: () => count\n  };\n}\nconst counter = createCounter();\nconsole.log(counter.increment() + counter.value());",
+      "options": ["1", "2", "0", "undefined"],
+      "correctAnswer": 1,
+      "explanation": "increment() увеличивает count до 1 и возвращает 1. value() возвращает текущий count (1). Сумма: 1 + 1 = 2.",
+      "wrongExplanation": "Замыкание сохраняет доступ к переменной count, все методы работают с одной переменной."
+    },
+    
+    // ========== СЛОЖНЫЕ ВОПРОСЫ ==========
+    {
+      "question": "Что выведет этот код?\nconst funcs = [];\nfor (let i = 0; i < 3; i++) {\n  funcs.push(() => i);\n}\nconsole.log(funcs[0]() + funcs[1]() + funcs[2]());",
+      "options": ["0", "3", "6", "9"],
+      "correctAnswer": 1,
+      "explanation": "let создает новую переменную для каждой итерации. Каждая функция захватывает свое значение i: 0 + 1 + 2 = 3.",
+      "wrongExplanation": "Блочная область видимости let создает отдельную переменную i для каждой итерации цикла."
+    },
+    {
+      "question": "Что выведет этот код?\nfunction outer(x) {\n  return function middle(y) {\n    return function inner(z) {\n      return x + y + z;\n    };\n  };\n}\nconsole.log(outer(1)(2)(3));",
+      "options": ["6", "123", "undefined", "function"],
+      "correctAnswer": 0,
+      "explanation": "Каждая функция сохраняет доступ к параметрам внешних функций через замыкание. 1 + 2 + 3 = 6.",
+      "wrongExplanation": "Вложенные функции имеют доступ ко всем переменным внешних областей видимости."
+    },
+    {
+      "question": "Что выведет этот код?\nlet x = 1;\nfunction test() {\n  console.log(x);\n  let x = 2;\n}\ntest();",
+      "options": ["1", "2", "undefined", "ReferenceError"],
+      "correctAnswer": 3,
+      "explanation": "Локальная переменная x находится в temporal dead zone до ее объявления, поэтому возникает ReferenceError.",
+      "wrongExplanation": "let поднимается, но недоступна до объявления. Локальная переменная затеняет глобальную."
+    },
+    {
+      "question": "Что выведет этот код?\nconst module = (function() {\n  let private = 0;\n  return {\n    getPrivate: () => private,\n    setPrivate: (val) => private = val\n  };\n})();\nmodule.setPrivate(5);\nconsole.log(module.getPrivate());",
+      "options": ["0", "5", "undefined", "ReferenceError"],
+      "correctAnswer": 1,
+      "explanation": "IIFE создает модуль с приватной переменной. setPrivate изменяет private на 5, getPrivate возвращает 5.",
+      "wrongExplanation": "Паттерн модуля использует замыкание для создания приватных переменных и публичных методов."
+    },
+    {
+      "question": "Что выведет этот код?\nfunction createAdder(x) {\n  return function(y) {\n    return x + y;\n  };\n}\nconst add5 = createAdder(5);\nconst add10 = createAdder(10);\nconsole.log(add5(3) + add10(2));",
+      "options": ["8", "12", "20", "15"],
+      "correctAnswer": 2,
+      "explanation": "add5(3) = 5 + 3 = 8, add10(2) = 10 + 2 = 12. Сумма: 8 + 12 = 20.",
+      "wrongExplanation": "Каждый вызов createAdder создает отдельное замыкание с собственным значением x."
+    }
+  ];
+
+  // Тест: Функции
+  static Map<String, dynamic> get functionsTest {
+    return {
+      "id": "js_functions_test",
+      "title": "Функции в JavaScript",
+      "category": "JavaScript",
+      "difficulty": "Легкий",
+      "track": "Junior Frontend (React)",
+      "type": "Тест",
+      "xpReward": 15,
+      "energyCost": 3,
+      "description": "Изучите основы функций: объявление, вызов, параметры и продвинутые концепции",
+      "questions": _getRandomQuestions(_functionsQuestionsPool, 8),
+    };
+  }
+
+  // Тест: Замыкания и область видимости
+  static Map<String, dynamic> get closuresTest {
+    return {
+      "id": "js_closures_test",
+      "title": "Замыкания и область видимости",
+      "category": "JavaScript",
+      "difficulty": "Средний",
+      "track": "Junior Frontend (React)",
+      "type": "Тест",
+      "xpReward": 20,
+      "energyCost": 4,
+      "description": "Освойте область видимости, замыкания и продвинутые концепции JavaScript",
+      "questions": _getRandomQuestions(_closuresQuestionsPool, 8),
+    };
+  }
+
+  // Анализ кода: Функции
+  static final List<Map<String, dynamic>> _functionsCodePool = [
+    {
+      "codeSnippet": """function test() {
+  console.log(a); // Результат 1
+  console.log(b); // Результат 2
+  console.log(c); // Результат 3
+  
+  function a() { return 'function a'; }
+  var b = function() { return 'function b'; };
+  const c = () => 'arrow function c';
+}
+
+test();""",
+      "questions": [
+        {
+          "question": "Что выведет первый console.log(a)?",
+          "options": ["function a", "[Function: a]", "undefined", "ReferenceError"],
+          "correctAnswer": 1,
+          "explanation": "Function declarations полностью поднимаются, поэтому функция доступна до объявления.",
+          "wrongExplanation": "В отличие от переменных, function declarations поднимаются целиком, включая реализацию."
+        },
+        {
+          "question": "Что выведет первый console.log(b)?",
+          "options": ["function b", "undefined", "[Function: b]", "ReferenceError"],
+          "correctAnswer": 1,
+          "explanation": "var b поднимается как undefined, функция присваивается только в месте объявления.",
+          "wrongExplanation": "Function expressions не поднимаются, поднимается только объявление переменной."
+        },
+        {
+          "question": "Что выведет первый console.log(c)?",
+          "options": ["arrow function c", "undefined", "[Function: c]", "ReferenceError"],
+          "correctAnswer": 3,
+          "explanation": "const находится в temporal dead zone до объявления, поэтому возникает ReferenceError.",
+          "wrongExplanation": "const и let поднимаются, но недоступны до объявления из-за temporal dead zone."
+        }
+      ]
+    },
+    {
+      "codeSnippet": """const obj = {
+  name: 'Object',
+  regularMethod: function() {
+    return this.name;
+  },
+  arrowMethod: () => {
+    return this.name;
+  },
+  nestedMethod: function() {
+    const inner = () => this.name;
+    return inner();
+  }
+};
+
+console.log(obj.regularMethod());  // Результат 1
+console.log(obj.arrowMethod());    // Результат 2
+console.log(obj.nestedMethod());   // Результат 3""",
+      "questions": [
+        {
+          "question": "Что выведет obj.regularMethod()?",
+          "options": ["'Object'", "undefined", "null", "ReferenceError"],
+          "correctAnswer": 0,
+          "explanation": "Обычная функция как метод объекта имеет this, указывающий на объект obj.",
+          "wrongExplanation": "При вызове метода объекта this автоматически привязывается к этому объекту."
+        },
+        {
+          "question": "Что выведет obj.arrowMethod()?",
+          "options": ["'Object'", "undefined", "null", "ReferenceError"],
+          "correctAnswer": 1,
+          "explanation": "Arrow function наследует this из лексического контекста (глобального), где this.name undefined.",
+          "wrongExplanation": "Arrow functions не имеют собственного this и не привязываются к объекту при вызове."
+        },
+        {
+          "question": "Что выведет obj.nestedMethod()?",
+          "options": ["'Object'", "undefined", "null", "ReferenceError"],
+          "correctAnswer": 0,
+          "explanation": "Arrow function inner наследует this от nestedMethod, который указывает на obj.",
+          "wrongExplanation": "Arrow function внутри обычного метода наследует this этого метода."
+        }
+      ]
+    }
+  ];
+
+  // Динамический анализ кода: Функции
+  static Map<String, dynamic> get functionsCodeAnalysis {
+    final randomCode = (_functionsCodePool..shuffle()).first;
+    return {
+      "id": "js_functions_code",
+      "title": "Анализ кода: Функции",
+      "category": "JavaScript",
+      "difficulty": "Сложный",
+      "track": "Junior Frontend (React)",
+      "type": "Анализ кода",
+      "xpReward": 30,
+      "energyCost": 6,
+      "description": "Проанализируйте поведение различных типов функций",
+      "codeSnippet": randomCode["codeSnippet"],
+      "questions": randomCode["questions"],
+    };
+  }
+
+  // Обновленный метод получения всех тестов
   static List<Map<String, dynamic>> getAllTests() {
     return [
+      // Модуль 1: Основы
       variablesTypesTest,
       operatorsTest,
       variablesCodeAnalysis,
       operatorsCodeAnalysis,
+      // Модуль 2: Функции
+      functionsTest,
+      closuresTest,
+      functionsCodeAnalysis,
     ];
-  }
-
-  // Получить тесты по типу
-  static List<Map<String, dynamic>> getTestsByType(String type) {
-    return getAllTests().where((test) => test['type'] == type).toList();
-  }
-
-  // Получить тест по ID
-  static Map<String, dynamic>? getTestById(String id) {
-    try {
-      return getAllTests().firstWhere((test) => test['id'] == id);
-    } catch (e) {
-      return null;
-    }
   }
 } 
