@@ -1034,7 +1034,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
           reviewsCount: 100,
           emoji: "💻",
           estimatedHours: 20,
-A          totalTasksCount: 10,
+          totalTasksCount: 10,
           totalLessonsCount: 20,
           modules: [
             Module(

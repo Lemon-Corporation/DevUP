@@ -57,7 +57,7 @@ class MyApp extends StatelessWidget {
           foregroundColor: Color(0xFF5B5FEF),
           elevation: 0,
         ),
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),

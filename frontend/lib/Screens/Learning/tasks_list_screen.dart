@@ -3,6 +3,9 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:devup/Data/data_model.dart';
 import 'package:devup/Screens/Learning/task_detail_screen.dart';
+import 'package:devup/Screens/Learning/intro_to_js_page.dart';
+import 'package:devup/Screens/Learning/variables_types_page.dart';
+import 'package:devup/Screens/Learning/operators_expressions_page.dart';
 import 'package:devup/Values/values.dart';
 import 'package:devup/widgets/DarkBackground/darkRadialBackground.dart';
 import 'package:devup/widgets/Navigation/app_header.dart';
@@ -492,66 +495,86 @@ class _TasksListScreenState extends State<TasksListScreen> {
     required String duration,
     required bool isCompleted,
   }) {
-    return Container(
-      padding: EdgeInsets.all(15),
-        decoration: BoxDecoration(
-        color: AppColors.surface,
-          borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: Offset(0, 4),
-          ),
-        ],
-        ),
-        child: Row(
-          children: [
-            Container(
-            width: 40,
-            height: 40,
-              decoration: BoxDecoration(
-              color: isCompleted ? AppColors.success.withOpacity(0.1) : AppColors.primary.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Icon(
-                isCompleted ? Icons.check : Icons.menu_book,
-                color: isCompleted ? AppColors.success : AppColors.primary,
-                size: 20,
-                ),
-              ),
-            ),
-            SizedBox(width: 15),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.firaCode(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                  "Время чтения: $duration",
-                    style: GoogleFonts.firaCode(
-                      fontSize: 12,
-                    color: AppColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          Icon(
-            Icons.arrow_forward_ios,
-            color: AppColors.primary,
-            size: 16,
+    return GestureDetector(
+      onTap: () {
+        if (title == "Введение в JavaScript") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const IntroToJsPage()),
+          );
+        } else if (title == "Переменные и типы данных") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const VariablesTypesPage()),
+          );
+        } else if (title == "Операторы и выражения") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const OperatorsExpressionsPage()),
+          );
+        }
+      },
+      child: Container(
+        padding: EdgeInsets.all(15),
+          decoration: BoxDecoration(
+          color: AppColors.surface,
+            borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: Offset(0, 4),
             ),
           ],
+          ),
+          child: Row(
+            children: [
+              Container(
+              width: 40,
+              height: 40,
+                decoration: BoxDecoration(
+                color: isCompleted ? AppColors.success.withOpacity(0.1) : AppColors.primary.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Icon(
+                  isCompleted ? Icons.check : Icons.menu_book,
+                  color: isCompleted ? AppColors.success : AppColors.primary,
+                  size: 20,
+                  ),
+                ),
+              ),
+              SizedBox(width: 15),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: GoogleFonts.firaCode(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                      ),
+                    ),
+                    SizedBox(height: 5),
+                    Text(
+                    "Время чтения: $duration",
+                      style: GoogleFonts.firaCode(
+                        fontSize: 12,
+                      color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            Icon(
+              Icons.arrow_forward_ios,
+              color: AppColors.primary,
+              size: 16,
+              ),
+            ],
+        ),
       ),
     );
   }
