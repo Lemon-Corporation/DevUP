@@ -137,6 +137,67 @@ if (isAdult && (hasLicense || isWeekend)) {
 }'''),
                     const SizedBox(height: 24),
 
+                    // 3.1. Современные операторы
+                    _buildSectionTitle('3.1. Современные операторы', Icons.new_releases),
+                    const SizedBox(height: 12),
+                    _buildOperatorSection('Операторы для работы с null/undefined:', [
+                      '|| (логическое ИЛИ): возвращает первое truthy значение',
+                      '&& (логическое И): возвращает первое falsy или последнее truthy',
+                      '?? (nullish coalescing): возвращает правый операнд если левый null/undefined',
+                      '?. (optional chaining): безопасный доступ к свойствам',
+                    ]),
+                    const SizedBox(height: 12),
+                    _buildCodeBlock('''// Современные операторы
+let userName = null;
+let userAge = 0;
+let userEmail = "";
+let defaultName = "Гость";
+
+// Оператор || (логическое ИЛИ) - первое truthy значение
+let displayName = userName || defaultName;
+console.log(displayName); // "Гость" (userName falsy)
+
+let greeting = userEmail || "email@example.com";
+console.log(greeting); // "email@example.com" (userEmail falsy)
+
+// Оператор ?? (nullish coalescing) - только null/undefined
+let ageDisplay = userAge ?? 18;
+console.log(ageDisplay); // 0 (userAge не null/undefined!)
+
+let nameDisplay = userName ?? defaultName;
+console.log(nameDisplay); // "Гость" (userName null)
+
+// Разница между || и ??
+console.log(0 || "default");     // "default" (0 falsy)
+console.log(0 ?? "default");     // 0 (0 не null/undefined)
+console.log("" || "default");    // "default" ("" falsy)
+console.log("" ?? "default");    // "" ("" не null/undefined)
+
+// Optional chaining (?.) - безопасный доступ
+let user = {
+  name: "Анна",
+  address: {
+    city: "Москва"
+  }
+};
+
+console.log(user?.name);              // "Анна"
+console.log(user?.address?.city);     // "Москва"
+console.log(user?.phone?.number);     // undefined (безопасно!)'''),
+                    const SizedBox(height: 16),
+                    _buildHighlightBox(
+                      '🔥 Современный JavaScript',
+                      'Операторы ?? и ?. появились в ES2020 и ES2020. Они делают код безопаснее и читабельнее!',
+                      AppColors.primary,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildHighlightBox(
+                      '⚡ Практический совет',
+                      'Используй ?? для значений по умолчанию когда 0, false, "" - валидные значения. Используй || когда эти значения нужно заменить.',
+                      AppColors.success,
+                    ),
+                    const SizedBox(height: 24),
+
                     // 4. Операторы присваивания
                     _buildSectionTitle('4. Операторы присваивания', Icons.assignment),
                     const SizedBox(height: 12),
