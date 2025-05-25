@@ -1,7 +1,10 @@
 import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 import '../models/course_model.dart';
 import '../models/task_model.dart';
+import '../models/module_model.dart';
+import '../models/lesson_model.dart';
 
 // Сервис для хранения и управления всеми данными приложения
 class DataService extends GetxService {

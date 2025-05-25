@@ -5,6 +5,8 @@ import 'package:devup/Data/services/app_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'Screens/Learning/course_detail_screen.dart';
 
 import 'Screens/splash_screen.dart';
 
@@ -39,43 +41,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'DevUp',
+      title: 'DevUP',
       theme: ThemeData(
-        brightness: Brightness.light,
-        primaryColor: Color(0xFF5B5FEF), // Более мягкий фиолетовый
-        colorScheme: ColorScheme.light(
-          primary: Color(0xFF5B5FEF),
-          secondary: Color(0xFF00C9B1), // Бирюзовый акцент
-          tertiary: Color(0xFFFF6B6B), // Коралловый для акцентов
-          surface: Color(0xFFF8F9FA), // Светло-серый для карточек
-          background: Colors.white,
-        ),
+        primaryColor: Color(0xFF5B5FEF),
         scaffoldBackgroundColor: Colors.white,
-        appBarTheme: AppBarTheme(
-          systemOverlayStyle: SystemUiOverlayStyle.dark,
-          backgroundColor: Colors.white,
-          foregroundColor: Color(0xFF5B5FEF),
-          elevation: 0,
+        textTheme: GoogleFonts.montserratTextTheme(
+          Theme.of(context).textTheme,
         ),
-        cardTheme: CardTheme(
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-        textTheme: TextTheme(
-          headlineLarge:
-              TextStyle(color: Color(0xFF2D3142)), // headline1 → headlineLarge
-          headlineMedium:
-              TextStyle(color: Color(0xFF2D3142)), // headline2 → headlineMedium
-          bodyLarge:
-              TextStyle(color: Color(0xFF2D3142)), // bodyText1 → bodyLarge
-          bodyMedium:
-              TextStyle(color: Color(0xFF2D3142)), // bodyText2 → bodyMedium
-        ),
-        fontFamily: 'Montserrat', // Apple-подобный шрифт
       ),
-      home: SplashScreen(),
+      home: CourseDetailScreen(courseId: "javascript-course"),
     );
   }
 }

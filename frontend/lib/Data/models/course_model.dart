@@ -1,4 +1,8 @@
+
+
 import 'package:flutter/material.dart';
+import 'module_model.dart';
+import 'lesson_model.dart';
 
 class Course {
   final String id;
@@ -33,10 +37,12 @@ class Course {
     required this.estimatedHours,
   });
   
-  // Геттеры
+
   int get moduleCount => modules.length;
+  int get completedLessonsCount => modules.fold(0, (sum, module) => sum + module.completedLessonsCount);
+  double get completionPercentage => totalLessonsCount > 0 ? completedLessonsCount / totalLessonsCount : 0.0;
   
-  // Фабричные методы для создания курсов
+
   factory Course.createFrontendReact({required String level}) {
     return Course(
       id: "${level.toLowerCase()}-frontend",
@@ -109,48 +115,81 @@ class Course {
     );
   }
   
-  // Вспомогательные методы для создания модулей
+  factory Course.createJavaScriptCourse() {
+    return Course(
+      id: "javascript-course",
+      title: "JavaScript и React",
+      emoji: "🖥️",
+      description: "Полный курс по JavaScript и React для начинающих разработчиков",
+      level: "Junior",
+      technology: "JavaScript/React",
+      field: "Frontend",
+      rating: 4.8,
+      reviewsCount: 256,
+      modules: _createJavaScriptModules(),
+      instructor: Instructor(
+        id: "instr1",
+        name: "Александр Ганяк",
+        title: "Senior Frontend Developer",
+        avatarInitials: "АГ",
+      ),
+      totalLessonsCount: 24,
+      totalTasksCount: 12,
+      estimatedHours: 30,
+    );
+  }
+  
   static List<Module> _createFrontendModules() {
     return [
       Module(
         id: "module-1",
         title: "Введение и основы",
+        description: "Изучение базовых концепций JavaScript и основ программирования",
         lessons: [
           Lesson(
             id: "lesson-1-1",
             title: "Введение в JavaScript",
             type: LessonType.theory,
             duration: 15,
+            content: "Введение в JavaScript: история, особенности и применение языка.",
           ),
           Lesson(
             id: "lesson-1-2",
             title: "Переменные и типы данных",
             type: LessonType.theory,
             duration: 20,
+            content: "Изучение переменных и различных типов данных в JavaScript.",
           ),
           Lesson(
             id: "lesson-1-3",
             title: "Операторы и выражения",
             type: LessonType.theory,
             duration: 25,
+            content: "Работа с операторами и выражениями в JavaScript.",
           ),
           Lesson(
             id: "lesson-1-4",
             title: "Переменные и типы данных",
             type: LessonType.task,
             taskId: "test1",
+            duration: 30,
+            content: "Практическое задание по работе с переменными и типами данных.",
           ),
           Lesson(
             id: "lesson-1-5",
             title: "Работа с числами",
             type: LessonType.task,
             taskId: "algo1",
+            duration: 30,
+            content: "Практическое задание по работе с числами в JavaScript.",
           ),
           Lesson(
             id: "lesson-1-6",
             title: "Условные операторы",
             type: LessonType.task,
             taskId: "code1",
+            duration: 30,
+            content: "Практическое задание по работе с условными операторами.",
           ),
           Lesson(
             id: "lesson-1-7",
@@ -158,42 +197,52 @@ class Course {
             type: LessonType.project,
             description: "Создайте простой калькулятор с использованием HTML, CSS и JavaScript",
             xpReward: 50,
+            duration: 60,
+            content: "Разработка простого калькулятора с использованием JavaScript.",
           ),
         ],
       ),
       Module(
         id: "module-2",
         title: "Функции и область видимости",
+        description: "Работа с функциями, областями видимости и замыканиями в JavaScript",
         lessons: [
           Lesson(
             id: "lesson-2-1",
             title: "Функции в JavaScript",
             type: LessonType.theory,
             duration: 30,
+            content: "Изучение функций и их применения в JavaScript.",
           ),
           Lesson(
             id: "lesson-2-2",
             title: "Область видимости",
             type: LessonType.theory,
             duration: 25,
+            content: "Изучение областей видимости в JavaScript.",
           ),
           Lesson(
             id: "lesson-2-3",
             title: "Замыкания",
             type: LessonType.theory,
             duration: 35,
+            content: "Изучение замыканий в JavaScript.",
           ),
           Lesson(
             id: "lesson-2-4",
             title: "Работа с функциями",
             type: LessonType.task,
             taskId: "test3",
+            duration: 30,
+            content: "Практическое задание по работе с функциями.",
           ),
           Lesson(
             id: "lesson-2-5",
             title: "Замыкания в практике",
             type: LessonType.task,
             taskId: "code2",
+            duration: 30,
+            content: "Практическое задание по работе с замыканиями.",
           ),
           Lesson(
             id: "lesson-2-6",
@@ -201,36 +250,43 @@ class Course {
             type: LessonType.project,
             description: "Создайте таймер обратного отсчета с использованием замыканий",
             xpReward: 60,
+            duration: 60,
+            content: "Разработка таймера обратного отсчета с использованием замыканий.",
           ),
         ],
       ),
       Module(
         id: "module-3",
         title: "Объекты и массивы",
+        description: "Работа с объектами, массивами и современными возможностями JavaScript",
         lessons: [
           Lesson(
             id: "lesson-3-1",
             title: "Объекты в JavaScript",
             type: LessonType.theory,
             duration: 30,
+            content: "Изучение объектов в JavaScript.",
           ),
           Lesson(
             id: "lesson-3-2",
             title: "Массивы и методы массивов",
             type: LessonType.theory,
             duration: 35,
+            content: "Изучение массивов и их методов в JavaScript.",
           ),
           Lesson(
             id: "lesson-3-3",
             title: "Деструктуризация и spread оператор",
             type: LessonType.theory,
             duration: 25,
+            content: "Изучение деструктуризации и spread оператора в JavaScript.",
           ),
           Lesson(
             id: "lesson-3-4",
             title: "Работа с объектами",
             type: LessonType.task,
             taskId: "test4",
+            duration: 30,
           ),
           Lesson(
             id: "lesson-3-5",
@@ -250,6 +306,7 @@ class Course {
       Module(
         id: "module-4",
         title: "Асинхронный JavaScript",
+        description: "Изучение асинхронного программирования в JavaScript",
         lessons: [
           Lesson(
             id: "lesson-4-1",
@@ -293,6 +350,7 @@ class Course {
       Module(
         id: "module-5",
         title: "Основы React",
+        description: "Введение в React и его основные концепции",
         lessons: [
           Lesson(
             id: "lesson-5-1",
@@ -336,6 +394,7 @@ class Course {
       Module(
         id: "module-6",
         title: "Итоговый проект",
+        description: "Разработка полноценного веб-приложения с использованием всех изученных технологий",
         lessons: [
           Lesson(
             id: "lesson-6-1",
@@ -369,6 +428,7 @@ class Course {
       Module(
         id: "module-1",
         title: "Введение и основы",
+        description: "",
         lessons: [
           Lesson(
             id: "lesson-1-1",
@@ -412,6 +472,7 @@ class Course {
       Module(
         id: "module-2",
         title: "ООП и основы архитектуры",
+        description: "",
         lessons: [
           Lesson(
             id: "lesson-2-1",
@@ -449,6 +510,7 @@ class Course {
       Module(
         id: "module-3",
         title: "Работа с базами данных",
+        description: "",
         lessons: [
           Lesson(
             id: "lesson-3-1",
@@ -492,6 +554,7 @@ class Course {
       Module(
         id: "module-4",
         title: isDjango ? "Django Web Framework" : "Spring Boot",
+        description: "",
         lessons: [
           Lesson(
             id: "lesson-4-1",
@@ -529,6 +592,7 @@ class Course {
       Module(
         id: "module-5",
         title: "REST API и аутентификация",
+        description: "",
         lessons: [
           Lesson(
             id: "lesson-5-1",
@@ -572,6 +636,7 @@ class Course {
       Module(
         id: "module-6",
         title: "Итоговый проект",
+        description: "",
         lessons: [
           Lesson(
             id: "lesson-6-1",
@@ -597,7 +662,98 @@ class Course {
     ];
   }
   
-  // Статический метод для получения всех курсов
+  static List<Module> _createJavaScriptModules() {
+    return [
+      Module(
+        id: "module-1",
+        title: "Основы JavaScript",
+        description: "Изучение базовых концепций JavaScript",
+        lessons: [
+          Lesson(
+            id: "lesson-1-1",
+            title: "Введение в JavaScript",
+            type: LessonType.theory,
+            duration: 30,
+            content: "Введение в JavaScript: история, особенности и применение языка. Основные концепции и синтаксис.",
+          ),
+          Lesson(
+            id: "lesson-1-2",
+            title: "Переменные и типы данных",
+            type: LessonType.theory,
+            duration: 45,
+            content: "Изучение переменных и различных типов данных в JavaScript. Работа с примитивами и объектами.",
+          ),
+          Lesson(
+            id: "lesson-1-3",
+            title: "Операторы и выражения",
+            type: LessonType.task,
+            duration: 60,
+            taskId: "task1",
+            content: "Практическое задание по работе с операторами и выражениями в JavaScript.",
+          ),
+        ],
+      ),
+      Module(
+        id: "module-2",
+        title: "Функции и объекты",
+        description: "Работа с функциями и объектами в JavaScript",
+        lessons: [
+          Lesson(
+            id: "lesson-2-1",
+            title: "Функции в JavaScript",
+            type: LessonType.theory,
+            duration: 30,
+            content: "Изучение функций и их применения в JavaScript. Различные способы объявления функций.",
+          ),
+          Lesson(
+            id: "lesson-2-2",
+            title: "Объекты и массивы",
+            type: LessonType.theory,
+            duration: 45,
+            content: "Работа с объектами и массивами в JavaScript. Методы и свойства.",
+          ),
+          Lesson(
+            id: "lesson-2-3",
+            title: "Практика с объектами",
+            type: LessonType.task,
+            duration: 60,
+            taskId: "task2",
+            content: "Практическое задание по работе с объектами и массивами в JavaScript.",
+          ),
+        ],
+      ),
+      Module(
+        id: "module-3",
+        title: "Основы React",
+        description: "Введение в React и его основные концепции",
+        lessons: [
+          Lesson(
+            id: "lesson-3-1",
+            title: "Знакомство с React",
+            type: LessonType.theory,
+            duration: 30,
+            content: "Введение в React: история, особенности и преимущества. Основные концепции React.",
+          ),
+          Lesson(
+            id: "lesson-3-2",
+            title: "Компоненты в React",
+            type: LessonType.theory,
+            duration: 45,
+            content: "Изучение компонентов и их типов в React. Функциональные и классовые компоненты.",
+          ),
+          Lesson(
+            id: "lesson-3-3",
+            title: "Создание первого компонента",
+            type: LessonType.task,
+            duration: 60,
+            taskId: "task3",
+            content: "Практическое задание по созданию компонентов в React. Разработка простого приложения.",
+          ),
+        ],
+      ),
+    ];
+  }
+  
   static List<Course> getAllCourses() {
     return [
       Course.createFrontendReact(level: "beginner"),
@@ -609,10 +765,10 @@ class Course {
       Course.createBackendSpring(level: "beginner"),
       Course.createBackendSpring(level: "intermediate"),
       Course.createBackendSpring(level: "advanced"),
+      Course.createJavaScriptCourse(),
     ];
   }
   
-  // Получение курса по ID
   static Course? getCourseById(String id) {
     try {
       return getAllCourses().firstWhere((course) => course.id == id);
@@ -621,53 +777,9 @@ class Course {
     }
   }
   
-  // Получение курсов по уровню
   static List<Course> getCoursesByLevel(String level) {
     return getAllCourses().where((course) => course.level == level).toList();
   }
-}
-
-class Module {
-  final String id;
-  final String title;
-  final List<Lesson> lessons;
-  
-  Module({
-    required this.id,
-    required this.title,
-    required this.lessons,
-  });
-  
-  int get theoryLessonsCount => lessons.where((lesson) => lesson.type == LessonType.theory).length;
-  int get taskLessonsCount => lessons.where((lesson) => lesson.type == LessonType.task).length;
-  int get projectLessonsCount => lessons.where((lesson) => lesson.type == LessonType.project).length;
-  int get totalLessonsCount => lessons.length;
-}
-
-enum LessonType {
-  theory,   // Теоретический материал
-  task,     // Практическое задание
-  project,  // Проектное задание
-}
-
-class Lesson {
-  final String id;
-  final String title;
-  final LessonType type;
-  final int? duration;  // Для теоретических уроков, в минутах
-  final String? taskId; // Для заданий, ссылка на задание
-  final String? description; // Для проектов
-  final int? xpReward;  // Для проектов, награда опытом
-  
-  Lesson({
-    required this.id,
-    required this.title,
-    required this.type,
-    this.duration,
-    this.taskId,
-    this.description,
-    this.xpReward,
-  });
 }
 
 class Instructor {
@@ -689,7 +801,6 @@ class Instructor {
     this.studentsCount = 0,
   });
   
-  // Getters to ensure compatibility
   String get avatarText => avatarInitials;
   String get position => title;
-} 
+}

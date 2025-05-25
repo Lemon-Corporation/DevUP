@@ -3,9 +3,12 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import '../../Data/models/course_model.dart';
+import '../../Data/models/module_model.dart';
+import '../../Data/models/lesson_model.dart';
 import '../../Data/services/data_service.dart';
 import '../../Utils/app_extensions.dart';
 import 'tasks_list_screen.dart';
+import 'lesson_screen.dart';
 
 class CourseDetailScreen extends StatefulWidget {
   final String courseId;
@@ -27,57 +30,11 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
   }
   
   void _loadCourseData() {
-    // Получаем курс из DataService
-    print("Loading course with ID: ${widget.courseId}");
-    print("Available courses: ${DataService.to.courses.map((c) => '${c.id}: ${c.title}').toList()}");
-    
-    final course = DataService.to.getCourseById(widget.courseId);
-    print("Found course: ${course?.title ?? 'null'}");
-    
-    if (course != null) {
-      setState(() {
-        _course = course;
-        
-        // Получаем прогресс курса из данных пользователя
-        final userProgress = DataService.to.currentUser.coursesProgress[course.id];
-        if (userProgress != null) {
-          _completionPercentage = userProgress.completionPercentage;
-        }
-      });
-    } else {
-      // If we can't find the course in the DataService, try using the static method
-      print("Trying static Course.getCourseById method");
-      final staticCourse = Course.getCourseById(widget.courseId);
-      print("Found course via static method: ${staticCourse?.title ?? 'null'}");
-      
-      if (staticCourse != null) {
-        setState(() {
-          _course = staticCourse;
-          final userProgress = DataService.to.currentUser.coursesProgress[staticCourse.id];
-          if (userProgress != null) {
-            _completionPercentage = userProgress.completionPercentage;
-          }
-        });
-      } else {
-        print("ERROR: Course not found with ID: ${widget.courseId}");
-      }
-    }
-
-    // Add a fallback to use static method after 2 seconds if DataService failed
-    Future.delayed(Duration(seconds: 2), () {
-      if (mounted && _course == null) {
-        print("DataService timeout - trying static method");
-        final staticCourse = Course.getCourseById(widget.courseId);
-        if (staticCourse != null) {
-          setState(() {
-            _course = staticCourse;
-          });
-        } else {
-          // If static method also fails, create a mock course as last resort
-          print("Static method failed - creating mock course");
-          _createMockCourse();
-        }
-      }
+    // Создаем JavaScript курс
+    final course = Course.createJavaScriptCourse();
+    setState(() {
+      _course = course;
+      _completionPercentage = 0.0;
     });
   }
   
@@ -434,11 +391,11 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Модули',
+          'Модули курса',
           style: GoogleFonts.montserrat(
             color: Color(0xFF2D3142),
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
           ),
         ),
         SizedBox(height: 16),
@@ -448,219 +405,135 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
           itemCount: _course!.modules.length,
           itemBuilder: (context, index) {
             final module = _course!.modules[index];
-            return _buildModuleCard(module, index);
+            return _buildModuleTile(module, index);
           },
         ),
       ],
     );
   }
   
-  // Module card with expandable/collapsible lessons
-  Widget _buildModuleCard(Module module, int index) {
-    return StatefulBuilder( // Use StatefulBuilder to handle expansion state
-      builder: (context, setState) {
-        bool isExpanded = false;
-        
-        return Column(
-          children: [
-            Container(
-              margin: EdgeInsets.only(bottom: isExpanded ? 0 : 16),
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Color(0xFFF8F9FA),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
-                  bottomLeft: isExpanded ? Radius.circular(0) : Radius.circular(16),
-                  bottomRight: isExpanded ? Radius.circular(0) : Radius.circular(16),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: InkWell(
-                onTap: () {
-                  setState(() {
-                    isExpanded = !isExpanded;
-                  });
-                },
-                child: Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Color(0xFF5B5FEF).withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          '${index + 1}',
-                          style: GoogleFonts.montserrat(
-                            color: Color(0xFF5B5FEF),
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            module.title,
-                            style: GoogleFonts.montserrat(
-                              color: Color(0xFF2D3142),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            '${module.lessons.length} уроков',
-                            style: GoogleFonts.montserrat(
-                              color: Colors.grey[600],
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Icon(
-                      isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                      color: Color(0xFF5B5FEF),
-                    ),
-                  ],
-                ),
+  Widget _buildModuleTile(Module module, int index) {
+    return Card(
+      margin: EdgeInsets.only(bottom: 12),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: Color(0xFFE5E7EB),
+          width: 1,
+        ),
+      ),
+      child: ExpansionTile(
+        title: Text(
+          module.title,
+          style: GoogleFonts.montserrat(
+            color: Color(0xFF2D3142),
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        subtitle: Text(
+          '${module.completedLessonsCount}/${module.totalLessonsCount} уроков',
+          style: GoogleFonts.montserrat(
+            color: Color(0xFF2D3142).withOpacity(0.6),
+            fontSize: 14,
+          ),
+        ),
+        leading: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: Color(0xFF5B5FEF).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Center(
+            child: Text(
+              '${index + 1}',
+              style: GoogleFonts.montserrat(
+                color: Color(0xFF5B5FEF),
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
               ),
             ),
-            // Display lessons if module is expanded
-            if (isExpanded) 
-              Container(
-                margin: EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(16),
-                    bottomRight: Radius.circular(16),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: module.lessons.map((lesson) => _buildLessonItem(lesson)).toList(),
-                ),
-              ),
-          ],
-        );
-      }
+          ),
+        ),
+        trailing: Icon(
+          Icons.keyboard_arrow_down,
+          color: Color(0xFF2D3142),
+        ),
+        children: module.lessons.map((lesson) => _buildLessonTile(lesson)).toList(),
+      ),
     );
   }
   
-  // Individual lesson item
-  Widget _buildLessonItem(Lesson lesson) {
-    IconData iconData;
-    Color iconColor;
-    
-    // Different icons based on lesson type
-    switch (lesson.type) {
-      case LessonType.theory:
-        iconData = Icons.menu_book;
-        iconColor = Colors.blue;
-        break;
-      case LessonType.task:
-        iconData = Icons.code;
-        iconColor = Color(0xFF5B5FEF);
-        break;
-      case LessonType.project:
-        iconData = Icons.assignment;
-        iconColor = Color(0xFF00C9B1);
-        break;
-      default:
-        iconData = Icons.info;
-        iconColor = Colors.grey;
-    }
-    
-    return InkWell(
-      onTap: () {
-        // Navigate to appropriate screen based on lesson type
-        if (lesson.type == LessonType.task && lesson.taskId != null) {
-          // Navigate to task screen
-          Get.to(() => TasksListScreen(
-            track: "Junior Frontend (React)", 
-            courseId: _course!.id,
-            taskId: lesson.taskId,
-          ));
-        } else {
-          // Show theory content or other content
-          Get.snackbar(
-            "Урок",
-            "Открыт урок: ${lesson.title}",
-            snackPosition: SnackPosition.BOTTOM,
-          );
-        }
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+  Widget _buildLessonTile(Lesson lesson) {
+    return ListTile(
+      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      leading: Container(
+        width: 32,
+        height: 32,
         decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: Colors.grey.withOpacity(0.1)),
+          color: _getLessonTypeColor(lesson.type).withOpacity(0.1),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Center(
+          child: Icon(
+            _getLessonTypeIcon(lesson.type),
+            color: _getLessonTypeColor(lesson.type),
+            size: 16,
           ),
         ),
-        child: Row(
-          children: [
-            Container(
-              padding: EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                iconData,
-                color: iconColor,
-                size: 16,
-              ),
-            ),
-            SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                lesson.title,
-                style: GoogleFonts.montserrat(
-                  color: Color(0xFF2D3142),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            if (lesson.type == LessonType.theory && lesson.duration != null)
-              Text(
-                "${lesson.duration} мин",
-                style: GoogleFonts.montserrat(
-                  color: Colors.grey[600],
-                  fontSize: 12,
-                ),
-              ),
-            SizedBox(width: 8),
-            Icon(
-              Icons.arrow_forward_ios,
-              color: Colors.grey[400],
-              size: 14,
-            ),
-          ],
+      ),
+      title: Text(
+        lesson.title,
+        style: GoogleFonts.montserrat(
+          color: Color(0xFF2D3142),
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
         ),
       ),
+      subtitle: Text(
+        '${lesson.duration} мин',
+        style: GoogleFonts.montserrat(
+          color: Color(0xFF2D3142).withOpacity(0.6),
+          fontSize: 12,
+        ),
+      ),
+      trailing: Icon(
+        lesson.isCompleted ? Icons.check_circle : Icons.radio_button_unchecked,
+        color: lesson.isCompleted ? Color(0xFF5B5FEF) : Colors.grey,
+        size: 20,
+      ),
+      onTap: () {
+        Get.to(() => LessonScreen(lesson: lesson));
+      },
     );
+  }
+  
+  Color _getLessonTypeColor(LessonType type) {
+    switch (type) {
+      case LessonType.theory:
+        return Color(0xFF5B5FEF);
+      case LessonType.task:
+        return Color(0xFF00C853);
+      case LessonType.project:
+        return Color(0xFFFF6D00);
+      case LessonType.quiz:
+        return Color(0xFFD50000);
+    }
+  }
+  
+  IconData _getLessonTypeIcon(LessonType type) {
+    switch (type) {
+      case LessonType.theory:
+        return Icons.menu_book;
+      case LessonType.task:
+        return Icons.assignment;
+      case LessonType.project:
+        return Icons.code;
+      case LessonType.quiz:
+        return Icons.quiz;
+    }
   }
   
   Widget _buildInstructorInfo() {
@@ -841,72 +714,87 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
             Module(
               id: "module-1",
               title: "Введение в JavaScript",
+              description: "Основы JavaScript для начинающих",
               lessons: [
                 Lesson(
                   id: "lesson-1-1",
                   title: "Основы JavaScript",
                   type: LessonType.theory,
                   duration: 30,
+                  content: "Введение в JavaScript: история, особенности и применение языка.",
                 ),
                 Lesson(
                   id: "lesson-1-2",
                   title: "Переменные и типы данных",
                   type: LessonType.theory,
                   duration: 45,
+                  content: "Изучение переменных и различных типов данных в JavaScript.",
                 ),
                 Lesson(
                   id: "lesson-1-3",
                   title: "Операторы и выражения",
                   type: LessonType.task,
+                  duration: 60,
                   taskId: "task1",
+                  content: "Практическое задание по работе с операторами и выражениями.",
                 ),
               ],
             ),
             Module(
               id: "module-2",
               title: "Функции и объекты",
+              description: "Работа с функциями и объектами в JavaScript",
               lessons: [
                 Lesson(
                   id: "lesson-2-1",
                   title: "Функции в JavaScript",
                   type: LessonType.theory,
                   duration: 30,
+                  content: "Изучение функций и их применения в JavaScript.",
                 ),
                 Lesson(
                   id: "lesson-2-2",
                   title: "Объекты и массивы",
                   type: LessonType.theory,
                   duration: 45,
+                  content: "Работа с объектами и массивами в JavaScript.",
                 ),
                 Lesson(
                   id: "lesson-2-3",
                   title: "Практика с объектами",
                   type: LessonType.task,
+                  duration: 60,
                   taskId: "task2",
+                  content: "Практическое задание по работе с объектами.",
                 ),
               ],
             ),
             Module(
               id: "module-3",
               title: "Основы React",
+              description: "Введение в React и его основные концепции",
               lessons: [
                 Lesson(
                   id: "lesson-3-1",
                   title: "Знакомство с React",
                   type: LessonType.theory,
                   duration: 30,
+                  content: "Введение в React: история, особенности и преимущества.",
                 ),
                 Lesson(
                   id: "lesson-3-2",
                   title: "Компоненты в React",
                   type: LessonType.theory,
                   duration: 45,
+                  content: "Изучение компонентов и их типов в React.",
                 ),
                 Lesson(
                   id: "lesson-3-3",
                   title: "Создание первого компонента",
                   type: LessonType.task,
+                  duration: 60,
                   taskId: "task3",
+                  content: "Практическое задание по созданию компонентов в React.",
                 ),
               ],
             ),
@@ -941,72 +829,87 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
             Module(
               id: "module-1",
               title: "Введение в Python",
+              description: "Основы Python для веб-разработки",
               lessons: [
                 Lesson(
                   id: "lesson-1-1",
                   title: "Основы Python",
                   type: LessonType.theory,
                   duration: 30,
+                  content: "Введение в Python: синтаксис и основные концепции.",
                 ),
                 Lesson(
                   id: "lesson-1-2",
                   title: "Работа с данными",
                   type: LessonType.theory,
                   duration: 45,
+                  content: "Работа с различными типами данных в Python.",
                 ),
                 Lesson(
                   id: "lesson-1-3",
                   title: "Структуры данных Python",
                   type: LessonType.task,
+                  duration: 60,
                   taskId: "task4",
+                  content: "Практическое задание по работе со структурами данных.",
                 ),
               ],
             ),
             Module(
               id: "module-2",
               title: "Основы Django",
+              description: "Введение в Django Framework",
               lessons: [
                 Lesson(
                   id: "lesson-2-1",
                   title: "Введение в Django",
                   type: LessonType.theory,
                   duration: 30,
+                  content: "Знакомство с Django: архитектура и основные компоненты.",
                 ),
                 Lesson(
                   id: "lesson-2-2",
                   title: "Модели и миграции",
                   type: LessonType.theory,
                   duration: 45,
+                  content: "Работа с моделями и миграциями в Django.",
                 ),
                 Lesson(
                   id: "lesson-2-3",
                   title: "Создание первого проекта",
                   type: LessonType.task,
+                  duration: 60,
                   taskId: "task5",
+                  content: "Практическое задание по созданию Django проекта.",
                 ),
               ],
             ),
             Module(
               id: "module-3",
               title: "Django Views и Templates",
+              description: "Работа с представлениями и шаблонами",
               lessons: [
                 Lesson(
                   id: "lesson-3-1",
                   title: "Маршрутизация в Django",
                   type: LessonType.theory,
                   duration: 30,
+                  content: "Изучение системы маршрутизации в Django.",
                 ),
                 Lesson(
                   id: "lesson-3-2",
                   title: "Шаблоны и представления",
                   type: LessonType.theory,
                   duration: 45,
+                  content: "Работа с шаблонами и представлениями в Django.",
                 ),
                 Lesson(
                   id: "lesson-3-3",
                   title: "Разработка веб-страницы",
                   type: LessonType.task,
+                  duration: 60,
                   taskId: "task6",
+                  content: "Практическое задание по созданию веб-страницы.",
                 ),
               ],
             ),
@@ -1034,30 +937,35 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
           reviewsCount: 100,
           emoji: "💻",
           estimatedHours: 20,
-A          totalTasksCount: 10,
+          totalTasksCount: 10,
           totalLessonsCount: 20,
           modules: [
             Module(
               id: "module-1",
               title: "Основы программирования",
+              description: "Базовые концепции программирования",
               lessons: [
                 Lesson(
                   id: "lesson-1-1",
                   title: "Введение в программирование",
                   type: LessonType.theory,
                   duration: 30,
+                  content: "Основные концепции и принципы программирования.",
                 ),
                 Lesson(
                   id: "lesson-1-2",
                   title: "Основные концепции",
                   type: LessonType.theory,
                   duration: 45,
+                  content: "Изучение основных концепций программирования.",
                 ),
                 Lesson(
                   id: "lesson-1-3",
                   title: "Практическое задание",
                   type: LessonType.task,
+                  duration: 60,
                   taskId: "task-generic",
+                  content: "Практическое задание по основам программирования.",
                 ),
               ],
             ),
