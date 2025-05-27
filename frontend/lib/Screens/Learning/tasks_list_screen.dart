@@ -2,12 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:devup/Data/data_model.dart';
+import 'package:devup/Data/js_test_data.dart';
 import 'package:devup/Screens/Learning/task_detail_screen.dart';
+import 'package:devup/Screens/Learning/intro_to_js_page.dart';
+import 'package:devup/Screens/Learning/variables_types_page.dart';
+import 'package:devup/Screens/Learning/operators_expressions_page.dart';
+import 'package:devup/Screens/Learning/enhanced_test_screen.dart';
+import 'package:devup/Screens/Learning/functions_page.dart';
+import 'package:devup/Screens/Learning/closures_page.dart';
+import 'package:devup/Screens/Learning/form_validation_project.dart';
+import 'package:devup/Screens/Learning/guess_number_game.dart';
 import 'package:devup/Values/values.dart';
 import 'package:devup/widgets/DarkBackground/darkRadialBackground.dart';
-import 'package:devup/widgets/Navigation/app_header.dart';
 import 'package:devup/widgets/Learning/task_path_widget.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:devup/Services/progress_manager.dart';
 
 class TasksListScreen extends StatefulWidget {
   final String track;
@@ -21,18 +30,29 @@ class TasksListScreen extends StatefulWidget {
 }
 
 class _TasksListScreenState extends State<TasksListScreen> {
-  // Track progress data
-  final double trackCompletionPercentage = 0.35; // 35% completion
+  // Track progress data - теперь получаем из ProgressManager
+  double get trackCompletionPercentage => ProgressManager.getCurrentProgress();
   final int completedModules = 2;
   final int totalModules = 6;
-  final int earnedXP = 450;
+  int get earnedXP => ProgressManager.getCurrentXP();
   
   // Current selected module
   int selectedModuleIndex = 0;
   
+  // Состояние прохождения тестов
+  Map<String, bool> completedTests = {
+    'js_variables_test': false,
+    'js_operators_test': false,
+    'js_variables_code': false,
+    'js_operators_code': false,
+  };
+  
   @override
   void initState() {
     super.initState();
+    
+    // Обновляем состояние завершенных тестов из ProgressManager
+    _updateCompletedTests();
     
     // Если передан taskId, открываем соответствующее задание
     if (widget.taskId != null) {
@@ -40,6 +60,15 @@ class _TasksListScreenState extends State<TasksListScreen> {
         _openTaskById(widget.taskId!);
       });
     }
+  }
+  
+  void _updateCompletedTests() {
+    setState(() {
+      completedTests['js_variables_test'] = ProgressManager.isTestCompleted('js_variables_test');
+      completedTests['js_operators_test'] = ProgressManager.isTestCompleted('js_operators_test');
+      completedTests['js_variables_code'] = ProgressManager.isTestCompleted('js_variables_code');
+      completedTests['js_operators_code'] = ProgressManager.isTestCompleted('js_operators_code');
+    });
   }
   
   // Метод для открытия задания по ID
@@ -77,6 +106,10 @@ class _TasksListScreenState extends State<TasksListScreen> {
         track: widget.track,
       ));
     }
+  }
+
+  bool _areAllTestsCompleted() {
+    return completedTests.values.every((completed) => completed);
   }
 
   @override
@@ -391,6 +424,16 @@ class _TasksListScreenState extends State<TasksListScreen> {
   }
 
   Widget _buildTasksList() {
+    if (selectedModuleIndex == 0) {
+      return _buildModule1Tasks();
+    } else if (selectedModuleIndex == 1) {
+      return _buildModule2Tasks();
+    } else {
+      return _buildComingSoonModule();
+    }
+  }
+
+  Widget _buildModule1Tasks() {
     return ListView(
       padding: EdgeInsets.symmetric(horizontal: 20),
       children: [
@@ -400,54 +443,58 @@ class _TasksListScreenState extends State<TasksListScreen> {
           title: "Введение в JavaScript",
           duration: "15 мин",
           isCompleted: true,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const IntroToJsPage()),
+          ),
         ),
         SizedBox(height: 15),
         _buildTheoryCard(
           title: "Переменные и типы данных",
           duration: "20 мин",
           isCompleted: true,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const VariablesTypesPage()),
+          ),
         ),
         SizedBox(height: 15),
         _buildTheoryCard(
           title: "Операторы и выражения",
           duration: "25 мин",
           isCompleted: false,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const OperatorsExpressionsPage()),
+          ),
         ),
         
         SizedBox(height: 30),
         _buildSectionTitle("Практика", Icons.code),
         SizedBox(height: 10),
         
-        _buildTaskCard(
-          title: "Переменные и типы данных",
-          difficulty: "Легкий",
-          type: "Тест",
-          xp: 10,
-          energy: 2,
-          isCompleted: true,
-          task: AppData.testTasks[0],
+        // Новые тесты JavaScript
+        _buildEnhancedTestCard(
+          testData: JSTestData.variablesTypesTest,
+          isCompleted: completedTests['js_variables_test'] ?? false,
         ),
         SizedBox(height: 15),
         
-        _buildTaskCard(
-          title: "Работа с числами",
-          difficulty: "Легкий",
-          type: "Задача",
-          xp: 15,
-          energy: 3,
-          isCompleted: true,
-          task: AppData.algorithmTasks[0],
+        _buildEnhancedTestCard(
+          testData: JSTestData.operatorsTest,
+          isCompleted: completedTests['js_operators_test'] ?? false,
         ),
         SizedBox(height: 15),
         
-        _buildTaskCard(
-          title: "Условные операторы",
-          difficulty: "Средний",
-          type: "Анализ кода",
-          xp: 20,
-          energy: 4,
-          isCompleted: false,
-          task: AppData.codeAnalysisTasks[0],
+        _buildEnhancedTestCard(
+          testData: JSTestData.variablesCodeAnalysis,
+          isCompleted: completedTests['js_variables_code'] ?? false,
+        ),
+        SizedBox(height: 15),
+        
+        _buildEnhancedTestCard(
+          testData: JSTestData.operatorsCodeAnalysis,
+          isCompleted: completedTests['js_operators_code'] ?? false,
         ),
         
         SizedBox(height: 30),
@@ -455,14 +502,128 @@ class _TasksListScreenState extends State<TasksListScreen> {
         SizedBox(height: 10),
         
         _buildProjectCard(
-          title: "Калькулятор на JavaScript",
-          description: "Создайте простой калькулятор с использованием HTML, CSS и JavaScript",
-          xp: 50,
-          isLocked: selectedModuleIndex < 1,
+          title: "Форма валидации",
+          description: "Создайте интерактивную форму регистрации с валидацией полей",
+          xp: 40,
+          isLocked: !_areAllTestsCompleted(),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const FormValidationProject()),
+          ),
         ),
         
         SizedBox(height: 30),
       ],
+    );
+  }
+
+  Widget _buildModule2Tasks() {
+    // Состояние прохождения тестов второго модуля
+    Map<String, bool> module2Tests = {
+      'js_functions_test': ProgressManager.isTestCompleted('js_functions_test'),
+      'js_closures_test': ProgressManager.isTestCompleted('js_closures_test'),
+      'js_functions_code': ProgressManager.isTestCompleted('js_functions_code'),
+    };
+
+    bool areAllModule2TestsCompleted = module2Tests.values.every((completed) => completed);
+
+    return ListView(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      children: [
+        _buildSectionTitle("Теория", Icons.menu_book),
+        SizedBox(height: 10),
+        _buildTheoryCard(
+          title: "Функции в JavaScript",
+          duration: "30 мин",
+          isCompleted: false,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const FunctionsPage()),
+          ),
+        ),
+        SizedBox(height: 15),
+        _buildTheoryCard(
+          title: "Замыкания и область видимости",
+          duration: "35 мин",
+          isCompleted: false,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ClosuresPage()),
+          ),
+        ),
+        
+        SizedBox(height: 30),
+        _buildSectionTitle("Практика", Icons.code),
+        SizedBox(height: 10),
+        
+        // Тесты второго модуля
+        _buildEnhancedTestCard(
+          testData: JSTestData.functionsTest,
+          isCompleted: module2Tests['js_functions_test'] ?? false,
+        ),
+        SizedBox(height: 15),
+        
+        _buildEnhancedTestCard(
+          testData: JSTestData.closuresTest,
+          isCompleted: module2Tests['js_closures_test'] ?? false,
+        ),
+        SizedBox(height: 15),
+        
+        _buildEnhancedTestCard(
+          testData: JSTestData.functionsCodeAnalysis,
+          isCompleted: module2Tests['js_functions_code'] ?? false,
+        ),
+        
+        SizedBox(height: 30),
+        _buildSectionTitle("Проект модуля", Icons.assignment),
+        SizedBox(height: 10),
+        
+        _buildProjectCard(
+          title: "Игра \"Угадай число\"",
+          description: "Создайте интерактивную игру с использованием функций, замыканий и модульного паттерна",
+          xp: 50,
+          isLocked: !areAllModule2TestsCompleted,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const GuessNumberGame()),
+          ),
+        ),
+        
+        SizedBox(height: 30),
+      ],
+    );
+  }
+
+  Widget _buildComingSoonModule() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.construction,
+            size: 80,
+            color: AppColors.textSecondary,
+          ),
+          SizedBox(height: 20),
+          Text(
+            'Модуль в разработке',
+            style: GoogleFonts.firaCode(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          SizedBox(height: 10),
+          Text(
+            'Скоро здесь появятся новые уроки!',
+            style: GoogleFonts.firaCode(
+              fontSize: 16,
+              color: AppColors.textSecondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 
@@ -491,80 +652,86 @@ class _TasksListScreenState extends State<TasksListScreen> {
     required String title,
     required String duration,
     required bool isCompleted,
+    required VoidCallback onTap,
   }) {
-    return Container(
-      padding: EdgeInsets.all(15),
-        decoration: BoxDecoration(
-        color: AppColors.surface,
-          borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: Offset(0, 4),
-          ),
-        ],
-        ),
-        child: Row(
-          children: [
-            Container(
-            width: 40,
-            height: 40,
-              decoration: BoxDecoration(
-              color: isCompleted ? AppColors.success.withOpacity(0.1) : AppColors.primary.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Icon(
-                isCompleted ? Icons.check : Icons.menu_book,
-                color: isCompleted ? AppColors.success : AppColors.primary,
-                size: 20,
-                ),
-              ),
-            ),
-            SizedBox(width: 15),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.firaCode(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                  "Время чтения: $duration",
-                    style: GoogleFonts.firaCode(
-                      fontSize: 12,
-                    color: AppColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          Icon(
-            Icons.arrow_forward_ios,
-            color: AppColors.primary,
-            size: 16,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(15),
+          decoration: BoxDecoration(
+          color: AppColors.surface,
+            borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: Offset(0, 4),
             ),
           ],
+          ),
+          child: Row(
+            children: [
+              Container(
+              width: 40,
+              height: 40,
+                decoration: BoxDecoration(
+                color: isCompleted ? AppColors.success.withOpacity(0.1) : AppColors.primary.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Icon(
+                  isCompleted ? Icons.check : Icons.menu_book,
+                  color: isCompleted ? AppColors.success : AppColors.primary,
+                  size: 20,
+                  ),
+                ),
+              ),
+              SizedBox(width: 15),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: GoogleFonts.firaCode(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                      ),
+                    ),
+                    SizedBox(height: 5),
+                    Text(
+                    "Время чтения: $duration",
+                      style: GoogleFonts.firaCode(
+                        fontSize: 12,
+                      color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            Icon(
+              Icons.arrow_forward_ios,
+              color: AppColors.primary,
+              size: 16,
+              ),
+            ],
+        ),
       ),
     );
   }
 
-  Widget _buildTaskCard({
-    required String title,
-    required String difficulty,
-    required String type,
-    required int xp,
-    required int energy,
+  Widget _buildEnhancedTestCard({
+    required Map<String, dynamic> testData,
     required bool isCompleted,
-    required Map<String, dynamic> task,
   }) {
+    final difficulty = testData['difficulty'] as String;
+    final type = testData['type'] as String;
+    final xp = testData['xpReward'] as int;
+    final energy = testData['energyCost'] as int;
+    final title = testData['title'] as String;
+    final questionCount = (testData['questions'] as List).length;
+
     Color difficultyColor;
     if (difficulty == "Легкий") {
       difficultyColor = AppColors.success;
@@ -575,12 +742,22 @@ class _TasksListScreenState extends State<TasksListScreen> {
     }
 
     return GestureDetector(
-      onTap: () {
-        Get.to(() => TaskDetailScreen(
-          task: task,
-          courseId: widget.courseId,
-          track: widget.track,
-        ));
+      onTap: () async {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EnhancedTestScreen(
+              testData: testData,
+              courseId: widget.courseId ?? '',
+              track: widget.track,
+            ),
+          ),
+        );
+        
+        // Обновляем состояние если тест пройден
+        if (result == true) {
+          _updateCompletedTests(); // Обновляем все состояния из ProgressManager
+        }
       },
       child: Container(
         padding: EdgeInsets.all(15),
@@ -664,6 +841,14 @@ class _TasksListScreenState extends State<TasksListScreen> {
                 color: AppColors.textPrimary,
               ),
             ),
+            SizedBox(height: 8),
+            Text(
+              "$questionCount вопросов • ${testData['description']}",
+              style: GoogleFonts.firaCode(
+                fontSize: 12,
+                color: AppColors.textSecondary,
+              ),
+            ),
             SizedBox(height: 15),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -717,74 +902,116 @@ class _TasksListScreenState extends State<TasksListScreen> {
     required String description,
     required int xp,
     required bool isLocked,
+    required VoidCallback onTap,
   }) {
-    return Container(
-      padding: EdgeInsets.all(20),
-        decoration: BoxDecoration(
-        color: isLocked ? AppColors.surface.withOpacity(0.7) : AppColors.surface,
-          borderRadius: BorderRadius.circular(15),
-          border: Border.all(
-          color: isLocked ? Colors.transparent : AppColors.primary.withOpacity(0.3),
-            width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: Offset(0, 4),
+    return GestureDetector(
+      onTap: isLocked ? null : onTap,
+      child: Container(
+        padding: EdgeInsets.all(20),
+          decoration: BoxDecoration(
+          color: isLocked ? AppColors.surface.withOpacity(0.7) : AppColors.surface,
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(
+            color: isLocked ? Colors.transparent : AppColors.primary.withOpacity(0.3),
+              width: 1,
           ),
-        ],
-      ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.firaCode(
-                  fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: isLocked ? AppColors.textLight : AppColors.textPrimary,
-                    ),
-                  ),
-              if (isLocked)
-                Icon(
-                  Icons.lock,
-                  color: AppColors.textLight,
-                  size: 20,
-                  ),
-                ],
-              ),
-          SizedBox(height: 10),
-          Text(
-            description,
-            style: GoogleFonts.firaCode(
-              fontSize: 14,
-              color: isLocked ? AppColors.textLight : AppColors.textSecondary,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: Offset(0, 4),
             ),
-          ),
-          SizedBox(height: 15),
-          Row(
-                  children: [
-                    Icon(
-                Icons.star,
-                color: isLocked ? AppColors.textLight : Colors.amber,
-                size: 16,
-                    ),
-                    SizedBox(width: 5),
-                    Text(
-                "$xp XP",
-                      style: GoogleFonts.firaCode(
-                  fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                  color: isLocked ? AppColors.textLight : AppColors.textPrimary,
-                ),
-              ),
           ],
         ),
-        ],
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: GoogleFonts.firaCode(
+                    fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: isLocked ? AppColors.textLight : AppColors.textPrimary,
+                      ),
+                    ),
+                ),
+                if (isLocked)
+                  Container(
+                    padding: EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.warning.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.lock,
+                          color: AppColors.warning,
+                          size: 16,
+                        ),
+                        SizedBox(width: 4),
+                        Text(
+                          'Завершите тесты',
+                          style: GoogleFonts.firaCode(
+                            fontSize: 10,
+                            color: AppColors.warning,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ],
+                ),
+            SizedBox(height: 10),
+            Text(
+              description,
+              style: GoogleFonts.firaCode(
+                fontSize: 14,
+                color: isLocked ? AppColors.textLight : AppColors.textSecondary,
+              ),
+            ),
+            SizedBox(height: 15),
+            Row(
+                    children: [
+                      Icon(
+                  Icons.star,
+                  color: isLocked ? AppColors.textLight : Colors.amber,
+                  size: 16,
+                      ),
+                      SizedBox(width: 5),
+                      Text(
+                  "$xp XP",
+                        style: GoogleFonts.firaCode(
+                    fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                    color: isLocked ? AppColors.textLight : AppColors.textPrimary,
+                  ),
+                ),
+                SizedBox(width: 20),
+                Icon(
+                  Icons.code,
+                  color: isLocked ? AppColors.textLight : AppColors.primary,
+                  size: 16,
+                ),
+                SizedBox(width: 5),
+                Text(
+                  "Проект",
+                  style: GoogleFonts.firaCode(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: isLocked ? AppColors.textLight : AppColors.primary,
+                  ),
+                ),
+            ],
+          ),
+          ],
+        ),
       ),
     );
   }
