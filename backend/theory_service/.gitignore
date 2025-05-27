@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.env
+.env
+.venv/
+venv/
+ENV/
+env/
+*.egg-info/
+dist/
+build/
+*.log
+logs/
+.coverage
+htmlcov/
+pip-wheel-metadata/
+__pypackages__/
+
+# VSCode
+.vscode/
+
+# PyCharm
+.idea/
+
+# Pytest
+.cache/
+.pytest_cache/
+
+# Jupyter
+*.ipynb_checkpoints
+
+# Migrations
+migrations/__pycache__/
+migrations/versions/__pycache__/
+
+# Docker
+*.db
+*.pid
+volumes/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# PostgreSQL data (if mapped locally)
+pgdata/
+
+# Backup files
+*.bak
+*.backup
