@@ -840,14 +840,34 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
   }
   
   Widget _buildStartButton() {
+    // Определяем, начал ли пользователь обучение
+    bool hasStartedLearning = _completionPercentage > 0.0;
+    String buttonText = hasStartedLearning 
+        ? 'Продолжить обучение (${(_completionPercentage * 100).toInt()}%)' 
+        : 'Начать обучение';
+    
     return GestureDetector(
       onTap: () {
-        // If course has modules and lessons, use the first task in the first module
-        String? firstTaskId;
-        if (_course!.modules.isNotEmpty) {
-          for (final lesson in _course!.modules[0].lessons) {
+        // Определяем, к какому модулю перейти
+        int targetModuleIndex = 0;
+        String? targetTaskId;
+        
+        if (hasStartedLearning) {
+          // Если обучение уже начато, определяем текущий модуль на основе прогресса
+          // Простая логика: каждый модуль = ~16.67% прогресса (100% / 6 модулей)
+          targetModuleIndex = (_completionPercentage * 6).floor().clamp(0, _course!.modules.length - 1);
+          
+          // Если прогресс больше 50%, но меньше 100%, переходим к модулю 3
+          if (_completionPercentage >= 0.5 && _completionPercentage < 1.0) {
+            targetModuleIndex = 2; // Модуль 3 (индекс 2)
+          }
+        }
+        
+        // Ищем первое задание в целевом модуле
+        if (_course!.modules.isNotEmpty && targetModuleIndex < _course!.modules.length) {
+          for (final lesson in _course!.modules[targetModuleIndex].lessons) {
             if (lesson.type == LessonType.task && lesson.taskId != null) {
-              firstTaskId = lesson.taskId;
+              targetTaskId = lesson.taskId;
               break;
             }
           }
@@ -856,7 +876,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
         Get.to(() => TasksListScreen(
           track: _course!.technology, 
           courseId: _course!.id,
-          taskId: firstTaskId,
+          taskId: targetTaskId,
         ));
       },
       child: Container(
@@ -864,27 +884,40 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
         padding: EdgeInsets.symmetric(vertical: 18),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF5B5FEF), Color(0xFF7367F0)],
+            colors: hasStartedLearning 
+                ? [Color(0xFF00C9B1), Color(0xFF5B5FEF)] // Градиент для "Продолжить"
+                : [Color(0xFF5B5FEF), Color(0xFF7367F0)], // Градиент для "Начать"
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Color(0xFF5B5FEF).withOpacity(0.3),
+              color: (hasStartedLearning ? Color(0xFF00C9B1) : Color(0xFF5B5FEF)).withOpacity(0.3),
               offset: Offset(0, 4),
               blurRadius: 12,
             ),
           ],
         ),
         child: Center(
-          child: Text(
-            'Начать обучение',
-            style: GoogleFonts.montserrat(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                hasStartedLearning ? Icons.play_arrow : Icons.school,
+                color: Colors.white,
+                size: 20,
+              ),
+              SizedBox(width: 8),
+              Text(
+                buttonText,
+                style: GoogleFonts.montserrat(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
         ),
       ),

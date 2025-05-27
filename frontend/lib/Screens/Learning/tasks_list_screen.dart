@@ -12,6 +12,12 @@ import 'package:devup/Screens/Learning/functions_page.dart';
 import 'package:devup/Screens/Learning/closures_page.dart';
 import 'package:devup/Screens/Learning/form_validation_project.dart';
 import 'package:devup/Screens/Learning/guess_number_game.dart';
+import 'package:devup/Screens/Learning/objects_theory_page.dart';
+import 'package:devup/Screens/Learning/arrays_theory_page.dart';
+import 'package:devup/Screens/Learning/destructuring_theory_page.dart';
+import 'package:devup/Screens/Learning/objects_practice_easy.dart';
+import 'package:devup/Screens/Learning/arrays_practice_medium.dart';
+import 'package:devup/Screens/Learning/todo_app_project.dart';
 import 'package:devup/Values/values.dart';
 import 'package:devup/widgets/DarkBackground/darkRadialBackground.dart';
 import 'package:devup/widgets/Learning/task_path_widget.dart';
@@ -32,7 +38,7 @@ class TasksListScreen extends StatefulWidget {
 class _TasksListScreenState extends State<TasksListScreen> {
   // Track progress data - теперь получаем из ProgressManager
   double get trackCompletionPercentage => ProgressManager.getCurrentProgress();
-  final int completedModules = 2;
+  final int completedModules = 3;
   final int totalModules = 6;
   int get earnedXP => ProgressManager.getCurrentXP();
   
@@ -41,15 +47,28 @@ class _TasksListScreenState extends State<TasksListScreen> {
   
   // Состояние прохождения тестов
   Map<String, bool> completedTests = {
+    // Модуль 1
     'js_variables_test': false,
     'js_operators_test': false,
     'js_variables_code': false,
     'js_operators_code': false,
+    // Модуль 2
+    'js_functions_test': false,
+    'js_closures_test': false,
+    'js_functions_code': false,
+    // Модуль 3
+    'js_objects_test': false,
+    'js_arrays_test': false,
+    'js_destructuring_test': false,
+    'js_objects_arrays_code': false,
   };
   
   @override
   void initState() {
     super.initState();
+    
+    // Определяем текущий модуль на основе прогресса
+    _setCurrentModuleBasedOnProgress();
     
     // Обновляем состояние завершенных тестов из ProgressManager
     _updateCompletedTests();
@@ -62,12 +81,40 @@ class _TasksListScreenState extends State<TasksListScreen> {
     }
   }
   
+  void _setCurrentModuleBasedOnProgress() {
+    // Простая логика: каждый модуль = ~16.67% прогресса (100% / 6 модулей)
+    double progress = trackCompletionPercentage;
+    int calculatedModule = (progress * 6).floor().clamp(0, totalModules - 1);
+    
+    // Если прогресс больше 35%, переходим к модулю 3 (так как мы его разблокировали)
+    if (progress >= 0.35) {
+      calculatedModule = 2; // Модуль 3 (индекс 2)
+    }
+    
+    // Убеждаемся, что модуль не заблокирован
+    if (calculatedModule <= completedModules) {
+      selectedModuleIndex = calculatedModule;
+    }
+  }
+  
   void _updateCompletedTests() {
     setState(() {
+      // Модуль 1
       completedTests['js_variables_test'] = ProgressManager.isTestCompleted('js_variables_test');
       completedTests['js_operators_test'] = ProgressManager.isTestCompleted('js_operators_test');
       completedTests['js_variables_code'] = ProgressManager.isTestCompleted('js_variables_code');
       completedTests['js_operators_code'] = ProgressManager.isTestCompleted('js_operators_code');
+      
+      // Модуль 2
+      completedTests['js_functions_test'] = ProgressManager.isTestCompleted('js_functions_test');
+      completedTests['js_closures_test'] = ProgressManager.isTestCompleted('js_closures_test');
+      completedTests['js_functions_code'] = ProgressManager.isTestCompleted('js_functions_code');
+      
+      // Модуль 3
+      completedTests['js_objects_test'] = ProgressManager.isTestCompleted('js_objects_test');
+      completedTests['js_arrays_test'] = ProgressManager.isTestCompleted('js_arrays_test');
+      completedTests['js_destructuring_test'] = ProgressManager.isTestCompleted('js_destructuring_test');
+      completedTests['js_objects_arrays_code'] = ProgressManager.isTestCompleted('js_objects_arrays_code');
     });
   }
   
@@ -428,6 +475,8 @@ class _TasksListScreenState extends State<TasksListScreen> {
       return _buildModule1Tasks();
     } else if (selectedModuleIndex == 1) {
       return _buildModule2Tasks();
+    } else if (selectedModuleIndex == 2) {
+      return _buildModule3Tasks();
     } else {
       return _buildComingSoonModule();
     }
@@ -586,6 +635,132 @@ class _TasksListScreenState extends State<TasksListScreen> {
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const GuessNumberGame()),
+          ),
+        ),
+        
+        SizedBox(height: 30),
+      ],
+    );
+  }
+
+  Widget _buildModule3Tasks() {
+    // Состояние прохождения тестов третьего модуля
+    Map<String, bool> module3Tests = {
+      'js_objects_test': ProgressManager.isTestCompleted('js_objects_test'),
+      'js_arrays_test': ProgressManager.isTestCompleted('js_arrays_test'),
+      'js_destructuring_test': ProgressManager.isTestCompleted('js_destructuring_test'),
+    };
+
+    // Состояние прохождения уроков третьего модуля
+    Map<String, bool> module3Lessons = {
+      'objects_theory': ProgressManager.isLessonCompleted('objects_theory'),
+      'arrays_theory': ProgressManager.isLessonCompleted('arrays_theory'),
+      'destructuring_theory': ProgressManager.isLessonCompleted('destructuring_theory'),
+    };
+
+    bool areAllModule3TestsCompleted = module3Tests.values.every((completed) => completed);
+
+    return ListView(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      children: [
+        _buildSectionTitle("Теория", Icons.menu_book),
+        SizedBox(height: 10),
+        _buildTheoryCard(
+          title: "Объекты в JavaScript",
+          duration: "30 мин",
+          isCompleted: module3Lessons['objects_theory'] ?? false,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ObjectsTheoryPage()),
+          ),
+        ),
+        SizedBox(height: 15),
+        _buildTheoryCard(
+          title: "Массивы и методы массивов",
+          duration: "35 мин",
+          isCompleted: module3Lessons['arrays_theory'] ?? false,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ArraysTheoryPage()),
+          ),
+        ),
+        SizedBox(height: 15),
+        _buildTheoryCard(
+          title: "Деструктуризация и spread оператор",
+          duration: "25 мин",
+          isCompleted: module3Lessons['destructuring_theory'] ?? false,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const DestructuringTheoryPage()),
+          ),
+        ),
+        
+        SizedBox(height: 30),
+        _buildSectionTitle("Тесты", Icons.quiz),
+        SizedBox(height: 10),
+        
+        // Тесты модуля 3
+        _buildEnhancedTestCard(
+          testData: JSTestData.objectsTest,
+          isCompleted: module3Tests['js_objects_test'] ?? false,
+        ),
+        SizedBox(height: 15),
+        
+        _buildEnhancedTestCard(
+          testData: JSTestData.arraysTest,
+          isCompleted: module3Tests['js_arrays_test'] ?? false,
+        ),
+        SizedBox(height: 15),
+        
+        _buildEnhancedTestCard(
+          testData: JSTestData.destructuringTest,
+          isCompleted: module3Tests['js_destructuring_test'] ?? false,
+        ),
+        SizedBox(height: 15),
+        
+        _buildEnhancedTestCard(
+          testData: JSTestData.objectsArraysCodeAnalysis,
+          isCompleted: ProgressManager.isTestCompleted('js_objects_arrays_code'),
+        ),
+        
+        SizedBox(height: 30),
+        _buildSectionTitle("Практика", Icons.code),
+        SizedBox(height: 10),
+        
+        // Практические задания модуля 3
+        _buildPracticeCard(
+          title: "Практика: Объекты (Легко)",
+          description: "Основы работы с объектами JavaScript",
+          xp: 30,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ObjectsPracticeEasy()),
+          ),
+        ),
+        SizedBox(height: 15),
+        
+        _buildPracticeCard(
+          title: "Практика: Массивы (Средне)",
+          description: "Методы массивов и функциональное программирование",
+          xp: 50,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ArraysPracticeMedium()),
+          ),
+        ),
+        
+        SizedBox(height: 30),
+        _buildSectionTitle("Проект модуля", Icons.assignment),
+        SizedBox(height: 10),
+        
+        _buildProjectCard(
+          title: "Todo приложение",
+          description: "Создайте полнофункциональное приложение для управления задачами",
+          xp: 100,
+          isLocked: !areAllModule3TestsCompleted,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const TodoAppProject()),
           ),
         ),
         
@@ -890,6 +1065,98 @@ class _TasksListScreenState extends State<TasksListScreen> {
                   ],
                 ),
               ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPracticeCard({
+    required String title,
+    required String description,
+    required int xp,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Icon(
+                  Icons.code,
+                  color: AppColors.primary,
+                  size: 20,
+                ),
+              ),
+            ),
+            SizedBox(width: 15),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.firaCode(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    description,
+                    style: GoogleFonts.firaCode(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.star,
+                        color: Colors.amber,
+                        size: 14,
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        "$xp XP",
+                        style: GoogleFonts.firaCode(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              color: AppColors.primary,
+              size: 16,
             ),
           ],
         ),

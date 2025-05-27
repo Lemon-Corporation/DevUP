@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:devup/Values/values.dart';
 import 'package:devup/Screens/Learning/arrays_theory_page.dart';
+import 'package:devup/Services/progress_manager.dart';
 
 class ObjectsTheoryPage extends StatelessWidget {
   const ObjectsTheoryPage({Key? key}) : super(key: key);
@@ -216,6 +217,9 @@ class ObjectsTheoryPage extends StatelessWidget {
               height: 50,
               child: ElevatedButton(
                 onPressed: () {
+                  // Отмечаем урок как пройденный
+                  ProgressManager.completeLesson('objects_theory', xpReward: 15);
+                  
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const ArraysTheoryPage()),

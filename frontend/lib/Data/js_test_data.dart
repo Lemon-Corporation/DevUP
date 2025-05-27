@@ -876,6 +876,374 @@ console.log(obj.nestedMethod());   // Результат 3""",
     };
   }
 
+  // ========== МОДУЛЬ 3: ОБЪЕКТЫ, МАССИВЫ, ДЕСТРУКТУРИЗАЦИЯ ==========
+  
+  // База вопросов для объектов
+  static final List<Map<String, dynamic>> _objectsQuestionsPool = [
+    {
+      "question": "Что выведет console.log(obj.name) для объекта const obj = { name: 'John', age: 30 }?",
+      "options": ["'John'", "undefined", "null", "ReferenceError"],
+      "correctAnswer": 0,
+      "explanation": "Доступ к свойству объекта через точечную нотацию возвращает значение свойства.",
+      "wrongExplanation": "obj.name обращается к свойству name объекта obj и возвращает его значение."
+    },
+    {
+      "question": "Какой способ НЕ подходит для доступа к свойству объекта?",
+      "options": ["obj.property", "obj['property']", "obj->property", "obj[variable]"],
+      "correctAnswer": 2,
+      "explanation": "Синтаксис obj->property используется в других языках (C++, PHP), но не в JavaScript.",
+      "wrongExplanation": "В JavaScript используется точечная нотация (obj.prop) или квадратные скобки (obj['prop'])."
+    },
+    {
+      "question": "Что выведет console.log(typeof {})?",
+      "options": ["'object'", "'Object'", "'undefined'", "'null'"],
+      "correctAnswer": 0,
+      "explanation": "Пустой объект {} имеет тип 'object' в JavaScript.",
+      "wrongExplanation": "typeof всегда возвращает строку в нижнем регистре, для объектов это 'object'."
+    },
+    {
+      "question": "Что произойдет при выполнении delete obj.property?",
+      "options": ["Свойство удалится", "Ошибка", "Свойство станет undefined", "Ничего"],
+      "correctAnswer": 0,
+      "explanation": "Оператор delete удаляет свойство из объекта полностью.",
+      "wrongExplanation": "delete удаляет свойство, а не просто присваивает undefined."
+    },
+    {
+      "question": "Что выведет console.log('name' in obj) для объекта { name: 'John' }?",
+      "options": ["true", "false", "'name'", "undefined"],
+      "correctAnswer": 0,
+      "explanation": "Оператор in проверяет наличие свойства в объекте, возвращает true если свойство существует.",
+      "wrongExplanation": "Оператор in возвращает boolean значение: true если свойство есть, false если нет."
+    },
+    {
+      "question": "Что выведет console.log(obj.hasOwnProperty('name')) для объекта { name: 'John' }?",
+      "options": ["true", "false", "'name'", "undefined"],
+      "correctAnswer": 0,
+      "explanation": "hasOwnProperty проверяет, является ли свойство собственным свойством объекта (не унаследованным).",
+      "wrongExplanation": "hasOwnProperty возвращает true для собственных свойств объекта."
+    },
+    {
+      "question": "Что выведет Object.keys({ a: 1, b: 2, c: 3 })?",
+      "options": ["[1, 2, 3]", "['a', 'b', 'c']", "3", "{ a: 1, b: 2, c: 3 }"],
+      "correctAnswer": 1,
+      "explanation": "Object.keys() возвращает массив ключей (имен свойств) объекта.",
+      "wrongExplanation": "Object.keys() извлекает только ключи объекта, не значения."
+    },
+    {
+      "question": "Что выведет Object.values({ a: 1, b: 2, c: 3 })?",
+      "options": ["[1, 2, 3]", "['a', 'b', 'c']", "3", "{ a: 1, b: 2, c: 3 }"],
+      "correctAnswer": 0,
+      "explanation": "Object.values() возвращает массив значений свойств объекта.",
+      "wrongExplanation": "Object.values() извлекает только значения свойств объекта."
+    },
+    {
+      "question": "Что произойдет при выполнении const obj = {}; obj.newProp = 'value'?",
+      "options": ["Ошибка", "obj останется пустым", "Добавится новое свойство", "undefined"],
+      "correctAnswer": 2,
+      "explanation": "const предотвращает переназначение переменной, но не изменение содержимого объекта.",
+      "wrongExplanation": "const защищает от переназначения (obj = ...), но позволяет изменять свойства объекта."
+    },
+    {
+      "question": "Что выведет console.log(obj.method()) для объекта { name: 'John', method: function() { return this.name; } }?",
+      "options": ["'John'", "undefined", "function", "ReferenceError"],
+      "correctAnswer": 0,
+      "explanation": "При вызове метода объекта this указывает на сам объект, поэтому this.name возвращает 'John'.",
+      "wrongExplanation": "Методы объекта имеют доступ к свойствам объекта через this."
+    }
+  ];
+
+  // База вопросов для массивов
+  static final List<Map<String, dynamic>> _arraysQuestionsPool = [
+    {
+      "question": "Что выведет console.log([1, 2, 3].length)?",
+      "options": ["3", "2", "undefined", "4"],
+      "correctAnswer": 0,
+      "explanation": "Свойство length массива возвращает количество элементов в массиве.",
+      "wrongExplanation": "length показывает количество элементов, индексы начинаются с 0, но length считает от 1."
+    },
+    {
+      "question": "Что выведет console.log([1, 2, 3].push(4))?",
+      "options": ["[1, 2, 3, 4]", "4", "3", "undefined"],
+      "correctAnswer": 1,
+      "explanation": "Метод push() добавляет элемент в конец массива и возвращает новую длину массива.",
+      "wrongExplanation": "push() возвращает новую длину массива, а не сам массив."
+    },
+    {
+      "question": "Что выведет console.log([1, 2, 3].pop())?",
+      "options": ["[1, 2]", "3", "2", "undefined"],
+      "correctAnswer": 1,
+      "explanation": "Метод pop() удаляет последний элемент массива и возвращает его.",
+      "wrongExplanation": "pop() возвращает удаленный элемент, а не измененный массив."
+    },
+    {
+      "question": "Что выведет console.log([1, 2, 3].indexOf(2))?",
+      "options": ["1", "2", "0", "-1"],
+      "correctAnswer": 0,
+      "explanation": "indexOf() возвращает индекс первого вхождения элемента. Элемент 2 находится по индексу 1.",
+      "wrongExplanation": "indexOf() возвращает позицию элемента в массиве, начиная с 0."
+    },
+    {
+      "question": "Что выведет console.log([1, 2, 3].includes(2))?",
+      "options": ["true", "false", "1", "2"],
+      "correctAnswer": 0,
+      "explanation": "includes() проверяет наличие элемента в массиве и возвращает boolean значение.",
+      "wrongExplanation": "includes() возвращает true если элемент найден, false если нет."
+    },
+    {
+      "question": "Что выведет console.log([1, 2, 3].map(x => x * 2))?",
+      "options": ["[1, 2, 3]", "[2, 4, 6]", "6", "undefined"],
+      "correctAnswer": 1,
+      "explanation": "map() создает новый массив, применяя функцию к каждому элементу исходного массива.",
+      "wrongExplanation": "map() не изменяет исходный массив, а создает новый с преобразованными элементами."
+    },
+    {
+      "question": "Что выведет console.log([1, 2, 3, 4].filter(x => x > 2))?",
+      "options": ["[3, 4]", "[1, 2]", "2", "true"],
+      "correctAnswer": 0,
+      "explanation": "filter() создает новый массив с элементами, которые проходят проверку в функции-колбэке.",
+      "wrongExplanation": "filter() возвращает массив элементов, для которых функция вернула true."
+    },
+    {
+      "question": "Что выведет console.log([1, 2, 3].reduce((acc, val) => acc + val, 0))?",
+      "options": ["6", "0", "[1, 2, 3]", "undefined"],
+      "correctAnswer": 0,
+      "explanation": "reduce() сводит массив к одному значению. Здесь суммируются все элементы: 0 + 1 + 2 + 3 = 6.",
+      "wrongExplanation": "reduce() применяет функцию к аккумулятору и каждому элементу, возвращая итоговое значение."
+    },
+    {
+      "question": "Что выведет console.log([1, 2, 3].find(x => x > 1))?",
+      "options": ["2", "[2, 3]", "1", "undefined"],
+      "correctAnswer": 0,
+      "explanation": "find() возвращает первый элемент, который удовлетворяет условию. Первый элемент > 1 это 2.",
+      "wrongExplanation": "find() возвращает первый найденный элемент, а не массив всех подходящих элементов."
+    },
+    {
+      "question": "Что выведет console.log([1, 2, 3].some(x => x > 2))?",
+      "options": ["true", "false", "3", "[3]"],
+      "correctAnswer": 0,
+      "explanation": "some() проверяет, есть ли хотя бы один элемент, удовлетворяющий условию. 3 > 2, поэтому true.",
+      "wrongExplanation": "some() возвращает true если хотя бы один элемент проходит проверку."
+    }
+  ];
+
+  // База вопросов для деструктуризации
+  static final List<Map<String, dynamic>> _destructuringQuestionsPool = [
+    {
+      "question": "Что выведет console.log(a, b) после const [a, b] = [1, 2, 3]?",
+      "options": ["1 2", "1 2 3", "[1, 2]", "undefined undefined"],
+      "correctAnswer": 0,
+      "explanation": "Деструктуризация массива извлекает элементы по позиции. a получает первый элемент (1), b - второй (2).",
+      "wrongExplanation": "При деструктуризации массива переменные получают значения по порядку, лишние элементы игнорируются."
+    },
+    {
+      "question": "Что выведет console.log(x, y) после const {name: x, age: y} = {name: 'John', age: 30}?",
+      "options": ["John 30", "name age", "x y", "undefined undefined"],
+      "correctAnswer": 0,
+      "explanation": "Деструктуризация с переименованием: свойство name присваивается переменной x, age - переменной y.",
+      "wrongExplanation": "Синтаксис {property: newName} позволяет переименовать свойства при деструктуризации."
+    },
+    {
+      "question": "Что выведет console.log(a, b, c) после const [a, b, c = 10] = [1, 2]?",
+      "options": ["1 2 10", "1 2 undefined", "1 2 null", "ReferenceError"],
+      "correctAnswer": 0,
+      "explanation": "Значение по умолчанию (c = 10) используется, когда элемент отсутствует в массиве.",
+      "wrongExplanation": "Значения по умолчанию в деструктуризации применяются для undefined элементов."
+    },
+    {
+      "question": "Что выведет console.log(name, age) после const {name, age} = {name: 'John', age: 30, city: 'NY'}?",
+      "options": ["John 30", "John 30 NY", "name age", "undefined undefined"],
+      "correctAnswer": 0,
+      "explanation": "Деструктуризация объекта извлекает свойства по именам. Лишние свойства игнорируются.",
+      "wrongExplanation": "При деструктуризации объекта имена переменных должны совпадать с именами свойств."
+    },
+    {
+      "question": "Что выведет console.log(first, rest) после const [first, ...rest] = [1, 2, 3, 4]?",
+      "options": ["1 [2, 3, 4]", "1 2", "[1] [2, 3, 4]", "1 rest"],
+      "correctAnswer": 0,
+      "explanation": "Rest оператор (...rest) собирает оставшиеся элементы массива в новый массив.",
+      "wrongExplanation": "Rest оператор должен быть последним в деструктуризации и собирает все оставшиеся элементы."
+    },
+    {
+      "question": "Что выведет console.log(a, b) после const {a = 5, b = 10} = {a: 1}?",
+      "options": ["1 10", "5 10", "1 undefined", "undefined 10"],
+      "correctAnswer": 0,
+      "explanation": "a получает значение из объекта (1), b использует значение по умолчанию (10), так как свойство b отсутствует.",
+      "wrongExplanation": "Значения по умолчанию используются только когда свойство undefined или отсутствует."
+    },
+    {
+      "question": "Что выведет console.log(arr) после const arr = [...[1, 2], ...[3, 4]]?",
+      "options": ["[1, 2, 3, 4]", "[[1, 2], [3, 4]]", "[1, 2] [3, 4]", "undefined"],
+      "correctAnswer": 0,
+      "explanation": "Spread оператор (...) разворачивает элементы массивов в новый массив.",
+      "wrongExplanation": "Spread оператор 'распаковывает' элементы массива или объекта."
+    },
+    {
+      "question": "Что выведет console.log(obj) после const obj = {...{a: 1}, ...{b: 2}}?",
+      "options": ["{a: 1, b: 2}", "{{a: 1}, {b: 2}}", "{a: 1} {b: 2}", "undefined"],
+      "correctAnswer": 0,
+      "explanation": "Spread оператор для объектов объединяет свойства в новый объект.",
+      "wrongExplanation": "Spread для объектов создает новый объект с объединенными свойствами."
+    },
+    {
+      "question": "Что произойдет при const {x, y, z} = {x: 1, y: 2}?",
+      "options": ["x=1, y=2, z=undefined", "x=1, y=2, z=null", "ReferenceError", "x=1, y=2, z=0"],
+      "correctAnswer": 0,
+      "explanation": "Отсутствующие свойства при деструктуризации получают значение undefined.",
+      "wrongExplanation": "Если свойство не найдено в объекте, переменная получает undefined."
+    },
+    {
+      "question": "Что выведет console.log(a, b) после let a = 1, b = 2; [a, b] = [b, a]?",
+      "options": ["2 1", "1 2", "undefined undefined", "ReferenceError"],
+      "correctAnswer": 0,
+      "explanation": "Деструктуризация позволяет легко поменять местами значения переменных.",
+      "wrongExplanation": "Это элегантный способ обмена значений без использования временной переменной."
+    }
+  ];
+
+  // Тест: Объекты в JavaScript
+  static Map<String, dynamic> get objectsTest {
+    return {
+      "id": "js_objects_test",
+      "title": "Объекты в JavaScript",
+      "category": "JavaScript",
+      "difficulty": "Легкий",
+      "track": "Junior Frontend (React)",
+      "type": "Тест",
+      "xpReward": 15,
+      "energyCost": 3,
+      "description": "Изучите основы работы с объектами: создание, свойства, методы",
+      "questions": _getRandomQuestions(_objectsQuestionsPool, 8),
+    };
+  }
+
+  // Тест: Массивы и методы массивов
+  static Map<String, dynamic> get arraysTest {
+    return {
+      "id": "js_arrays_test",
+      "title": "Массивы и методы массивов",
+      "category": "JavaScript",
+      "difficulty": "Средний",
+      "track": "Junior Frontend (React)",
+      "type": "Тест",
+      "xpReward": 20,
+      "energyCost": 4,
+      "description": "Освойте работу с массивами и их методами: map, filter, reduce и другие",
+      "questions": _getRandomQuestions(_arraysQuestionsPool, 8),
+    };
+  }
+
+  // Тест: Деструктуризация и Spread
+  static Map<String, dynamic> get destructuringTest {
+    return {
+      "id": "js_destructuring_test",
+      "title": "Деструктуризация и Spread",
+      "category": "JavaScript",
+      "difficulty": "Средний",
+      "track": "Junior Frontend (React)",
+      "type": "Тест",
+      "xpReward": 20,
+      "energyCost": 4,
+      "description": "Изучите современные возможности ES6: деструктуризация и spread оператор",
+      "questions": _getRandomQuestions(_destructuringQuestionsPool, 8),
+    };
+  }
+
+  // Анализ кода: Объекты и массивы
+  static final List<Map<String, dynamic>> _objectsArraysCodePool = [
+    {
+      "codeSnippet": """const users = [
+  { name: 'Alice', age: 25, active: true },
+  { name: 'Bob', age: 30, active: false },
+  { name: 'Charlie', age: 35, active: true }
+];
+
+const result1 = users.filter(user => user.active);
+const result2 = users.map(user => user.name);
+const result3 = users.find(user => user.age > 30);
+
+console.log(result1.length);  // Результат 1
+console.log(result2[1]);      // Результат 2
+console.log(result3.name);    // Результат 3""",
+      "questions": [
+        {
+          "question": "Что выведет console.log(result1.length)?",
+          "options": ["2", "3", "1", "0"],
+          "correctAnswer": 0,
+          "explanation": "filter() возвращает массив активных пользователей (Alice и Charlie), длина = 2.",
+          "wrongExplanation": "filter() создает новый массив с элементами, для которых функция вернула true."
+        },
+        {
+          "question": "Что выведет console.log(result2[1])?",
+          "options": ["'Alice'", "'Bob'", "'Charlie'", "undefined"],
+          "correctAnswer": 1,
+          "explanation": "map() создает массив имен ['Alice', 'Bob', 'Charlie'], элемент с индексом 1 это 'Bob'.",
+          "wrongExplanation": "map() преобразует каждый элемент массива, сохраняя порядок."
+        },
+        {
+          "question": "Что выведет console.log(result3.name)?",
+          "options": ["'Alice'", "'Bob'", "'Charlie'", "undefined"],
+          "correctAnswer": 2,
+          "explanation": "find() возвращает первый элемент, где age > 30. Это Charlie (age: 35).",
+          "wrongExplanation": "find() возвращает первый элемент, удовлетворяющий условию."
+        }
+      ]
+    },
+    {
+      "codeSnippet": """const obj = { a: 1, b: 2, c: 3 };
+const arr = [10, 20, 30];
+
+const {a, ...rest1} = obj;
+const [first, ...rest2] = arr;
+const newObj = {...obj, d: 4};
+const newArr = [...arr, 40];
+
+console.log(rest1);    // Результат 1
+console.log(rest2);    // Результат 2
+console.log(newObj.d); // Результат 3""",
+      "questions": [
+        {
+          "question": "Что выведет console.log(rest1)?",
+          "options": ["{b: 2, c: 3}", "{a: 1}", "{a: 1, b: 2, c: 3}", "undefined"],
+          "correctAnswer": 0,
+          "explanation": "Rest оператор собирает оставшиеся свойства объекта после извлечения 'a'.",
+          "wrongExplanation": "Rest в деструктуризации объекта собирает все свойства кроме явно извлеченных."
+        },
+        {
+          "question": "Что выведет console.log(rest2)?",
+          "options": ["[10]", "[20, 30]", "[10, 20, 30]", "undefined"],
+          "correctAnswer": 1,
+          "explanation": "Rest оператор собирает оставшиеся элементы массива после извлечения первого.",
+          "wrongExplanation": "Rest в деструктуризации массива собирает все элементы кроме явно извлеченных."
+        },
+        {
+          "question": "Что выведет console.log(newObj.d)?",
+          "options": ["4", "undefined", "3", "1"],
+          "correctAnswer": 0,
+          "explanation": "Spread оператор копирует все свойства obj и добавляет новое свойство d: 4.",
+          "wrongExplanation": "Spread позволяет создать новый объект с дополнительными свойствами."
+        }
+      ]
+    }
+  ];
+
+  // Динамический анализ кода: Объекты и массивы
+  static Map<String, dynamic> get objectsArraysCodeAnalysis {
+    final randomCode = (_objectsArraysCodePool..shuffle()).first;
+    return {
+      "id": "js_objects_arrays_code",
+      "title": "Анализ кода: Объекты и массивы",
+      "category": "JavaScript",
+      "difficulty": "Сложный",
+      "track": "Junior Frontend (React)",
+      "type": "Анализ кода",
+      "xpReward": 30,
+      "energyCost": 6,
+      "description": "Проанализируйте работу с объектами, массивами и их методами",
+      "codeSnippet": randomCode["codeSnippet"],
+      "questions": randomCode["questions"],
+    };
+  }
+
   // Обновленный метод получения всех тестов
   static List<Map<String, dynamic>> getAllTests() {
     return [
@@ -888,6 +1256,11 @@ console.log(obj.nestedMethod());   // Результат 3""",
       functionsTest,
       closuresTest,
       functionsCodeAnalysis,
+      // Модуль 3: Объекты, массивы, деструктуризация
+      objectsTest,
+      arraysTest,
+      destructuringTest,
+      objectsArraysCodeAnalysis,
     ];
   }
 } 
