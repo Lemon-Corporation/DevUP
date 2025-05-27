@@ -4,9 +4,15 @@ from app.api.routers.subscriptions import router as sub_router
 from app.models.db import async_engine, Base
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-app = FastAPI(title="NotificationService-async")
-app.include_router(notif_router, prefix="/api/v1/notifications", tags=["notifications"])
-app.include_router(sub_router, prefix="/api/v1/subscriptions", tags=["subscriptions"])
+app = FastAPI(
+    title="AnalyzeService",
+    description="Сервис уведомлений DevUP",
+    version="2.0.0")
+
+app.include_router(
+    notif_router, prefix="/api/v1/notifications", tags=["notifications"])
+app.include_router(sub_router, prefix="/api/v1/subscriptions",
+                   tags=["subscriptions"])
 
 
 @app.on_event("startup")
