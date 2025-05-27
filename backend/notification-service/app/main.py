@@ -5,7 +5,7 @@ from app.models.db import async_engine, Base
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 app = FastAPI(
-    title="AnalyzeService",
+    title="NotificationService",
     description="Сервис уведомлений DevUP",
     version="2.0.0")
 
