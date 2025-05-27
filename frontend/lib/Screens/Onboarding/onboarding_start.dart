@@ -2,7 +2,6 @@ import 'dart:math' as math;
 
 import 'package:devup/Screens/Onboarding/onboarding_carousel.dart';
 import 'package:devup/Values/values.dart';
-import '../../Utils/utils.dart';
 import 'package:devup/widgets/DarkBackground/darkRadialBackground.dart';
 import 'package:devup/widgets/Onboarding/background_image.dart';
 import 'package:devup/widgets/Onboarding/bubble_text.dart';
