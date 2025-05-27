@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  # Persistent Volumes
+  - persistent-volumes/postgres-pvc.yaml
+  
+  # Secrets
+  - secrets/db-secrets.yaml
+  
+  # Deployments
+  - deployments/postgres.yaml
+  - deployments/redis.yaml
+  - deployments/user-service.yaml
+  - deployments/theory-service.yaml
+  - deployments/analyze-service.yaml
+  - deployments/docs-service.yaml
+  
+  # Services
+  - services/postgres.yaml
+  - services/redis.yaml
+  - services/user-service.yaml
+  - services/theory-service.yaml
+  - services/analyze-service.yaml
+  - services/docs-service.yaml
+  
+  # Ingress
+  - ingress/api-gateway.yaml 

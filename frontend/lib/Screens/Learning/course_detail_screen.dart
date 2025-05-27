@@ -2,16 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-
 import '../../Data/models/course_model.dart';
 import '../../Data/services/data_service.dart';
+import '../../Utils/app_extensions.dart';
 import 'tasks_list_screen.dart';
+import 'objects_theory_page.dart';
+import 'arrays_theory_page.dart';
+import 'destructuring_theory_page.dart';
+import 'objects_practice_easy.dart';
+import 'arrays_practice_medium.dart';
+import 'todo_app_project.dart';
 
 class CourseDetailScreen extends StatefulWidget {
   final String courseId;
 
-  const CourseDetailScreen({Key? key, required this.courseId})
-      : super(key: key);
+  const CourseDetailScreen({Key? key, required this.courseId}) : super(key: key);
 
   @override
   _CourseDetailScreenState createState() => _CourseDetailScreenState();
@@ -20,70 +25,90 @@ class CourseDetailScreen extends StatefulWidget {
 class _CourseDetailScreenState extends State<CourseDetailScreen> {
   Course? _course;
   double _completionPercentage = 0.0;
-
+  Set<int> _expandedModules = {}; // Добавляем состояние для раскрытых модулей
+  
   @override
   void initState() {
     super.initState();
     _loadCourseData();
   }
-
+  
   void _loadCourseData() {
+    // ВРЕМЕННО: Принудительно используем mock course для тестирования
+    print("FORCING MOCK COURSE FOR TESTING");
+    _createMockCourse();
+    return;
+    
+    // ТЕСТ: Проверяем статический метод
+    print("=== TESTING STATIC METHOD ===");
+    final testCourse = Course.getCourseById("junior-frontend");
+    if (testCourse != null) {
+      print("TEST SUCCESS: Found course '${testCourse.title}' with ${testCourse.modules.length} modules");
+      for (int i = 0; i < testCourse.modules.length; i++) {
+        print("  Module ${i + 1}: ${testCourse.modules[i].title}");
+      }
+    } else {
+      print("TEST FAILED: Course not found");
+    }
+    print("=== END TEST ===");
+    
     // Получаем курс из DataService
     print("Loading course with ID: ${widget.courseId}");
-    print(
-        "Available courses: ${DataService.to.courses.map((c) => '${c.id}: ${c.title}').toList()}");
-
+    
+    // First try static method which has the correct Module 3
+    final staticCourse = Course.getCourseById(widget.courseId);
+    print("Found course via static method: ${staticCourse?.title ?? 'null'}");
+    print("Static course modules count: ${staticCourse?.modules.length ?? 0}");
+    if (staticCourse != null) {
+      print("Static course modules: ${staticCourse.modules.map((m) => '${m.id}: ${m.title}').toList()}");
+    }
+    
+    if (staticCourse != null) {
+      setState(() {
+        _course = staticCourse;
+        print("Set course with ${_course!.modules.length} modules");
+        // Try to get progress from DataService if available
+        try {
+          final userProgress = DataService.to.currentUser.coursesProgress[staticCourse.id];
+          if (userProgress != null) {
+            _completionPercentage = userProgress.completionPercentage;
+          } else {
+            _completionPercentage = 0.35; // Default progress
+          }
+        } catch (e) {
+          _completionPercentage = 0.35; // Default progress
+        }
+      });
+      return;
+    }
+    
+    // Fallback to DataService
+    print("Available courses: ${DataService.to.courses.map((c) => '${c.id}: ${c.title}').toList()}");
     final course = DataService.to.getCourseById(widget.courseId);
     print("Found course: ${course?.title ?? 'null'}");
-
+    
     if (course != null) {
       setState(() {
         _course = course;
-
-        final userProgress =
-            DataService.to.currentUser.coursesProgress[course.id];
+        
+        // Получаем прогресс курса из данных пользователя
+        final userProgress = DataService.to.currentUser.coursesProgress[course.id];
         if (userProgress != null) {
           _completionPercentage = userProgress.completionPercentage;
         }
       });
     } else {
-      print("Trying static Course.getCourseById method");
-      final staticCourse = Course.getCourseById(widget.courseId);
-      print("Found course via static method: ${staticCourse?.title ?? 'null'}");
-
-      if (staticCourse != null) {
-        setState(() {
-          _course = staticCourse;
-          final userProgress =
-              DataService.to.currentUser.coursesProgress[staticCourse.id];
-          if (userProgress != null) {
-            _completionPercentage = userProgress.completionPercentage;
-          }
-        });
-      } else {
-        print("ERROR: Course not found with ID: ${widget.courseId}");
-      }
+      print("ERROR: Course not found with ID: ${widget.courseId}");
+      // If all else fails, create a mock course as last resort
+      print("Creating mock course");
+      _createMockCourse();
     }
-
-    Future.delayed(Duration(seconds: 2), () {
-      if (mounted && _course == null) {
-        print("DataService timeout - trying static method");
-        final staticCourse = Course.getCourseById(widget.courseId);
-        if (staticCourse != null) {
-          setState(() {
-            _course = staticCourse;
-          });
-        } else {
-          print("Static method failed - creating mock course");
-          _createMockCourse();
-        }
-      }
-    });
   }
-
+  
   @override
   Widget build(BuildContext context) {
     if (_course == null) {
+      // Add a fallback to use static method after 2 seconds if DataService failed
       Future.delayed(Duration(seconds: 2), () {
         if (mounted && _course == null) {
           print("DataService timeout - trying static method");
@@ -93,12 +118,13 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
               _course = staticCourse;
             });
           } else {
+            // If static method also fails, create a mock course as last resort
             print("Static method failed - creating mock course");
             _createMockCourse();
           }
         }
       });
-
+      
       return Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(
@@ -133,7 +159,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
         ),
       );
     }
-
+    
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -171,11 +197,11 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
               SizedBox(height: 30),
               _buildCourseDescription(),
               SizedBox(height: 30),
+              _buildStartButton(),
+              SizedBox(height: 30),
               _buildModulesList(),
               SizedBox(height: 30),
               _buildInstructorInfo(),
-              SizedBox(height: 30),
-              _buildStartButton(),
               SizedBox(height: 30),
             ],
           ),
@@ -183,7 +209,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
       ),
     );
   }
-
+  
   Widget _buildCourseHero() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -231,8 +257,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                   Row(
                     children: [
                       Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
                           color: Color(0xFF5B5FEF).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(20),
@@ -248,8 +273,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                       ),
                       SizedBox(width: 8),
                       Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
                           color: Color(0xFF00C9B1).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(20),
@@ -354,7 +378,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
       ],
     );
   }
-
+  
   Widget _buildCourseStats() {
     return Container(
       padding: EdgeInsets.all(20),
@@ -380,7 +404,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
       ),
     );
   }
-
+  
   Widget _buildStatItem(String label, String value) {
     return Column(
       children: [
@@ -403,7 +427,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
       ],
     );
   }
-
+  
   Widget _buildCourseDescription() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -428,8 +452,13 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
       ],
     );
   }
-
+  
   Widget _buildModulesList() {
+    print("Building modules list with ${_course!.modules.length} modules");
+    for (int i = 0; i < _course!.modules.length; i++) {
+      print("Module $i: ${_course!.modules[i].title} (${_course!.modules[i].lessons.length} lessons)");
+    }
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -448,33 +477,110 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
           itemCount: _course!.modules.length,
           itemBuilder: (context, index) {
             final module = _course!.modules[index];
+            print("Building module card for index $index: ${module.title}");
             return _buildModuleCard(module, index);
           },
         ),
       ],
     );
   }
-
+  
   // Module card with expandable/collapsible lessons
   Widget _buildModuleCard(Module module, int index) {
-    return StatefulBuilder(// Use StatefulBuilder to handle expansion state
-        builder: (context, setState) {
-      bool isExpanded = false;
-
-      return Column(
-        children: [
+    bool isExpanded = _expandedModules.contains(index);
+    
+    return Column(
+      children: [
+        Container(
+          margin: EdgeInsets.only(bottom: isExpanded ? 0 : 16),
+          padding: EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Color(0xFFF8F9FA),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+              bottomLeft: isExpanded ? Radius.circular(0) : Radius.circular(16),
+              bottomRight: isExpanded ? Radius.circular(0) : Radius.circular(16),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: InkWell(
+            onTap: () {
+              setState(() {
+                if (isExpanded) {
+                  _expandedModules.remove(index);
+                } else {
+                  _expandedModules.add(index);
+                }
+              });
+            },
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Color(0xFF5B5FEF).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '${index + 1}',
+                      style: GoogleFonts.montserrat(
+                        color: Color(0xFF5B5FEF),
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        module.title,
+                        style: GoogleFonts.montserrat(
+                          color: Color(0xFF2D3142),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        '${module.lessons.length} уроков',
+                        style: GoogleFonts.montserrat(
+                          color: Colors.grey[600],
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                  color: Color(0xFF5B5FEF),
+                ),
+              ],
+            ),
+          ),
+        ),
+        // Display lessons if module is expanded
+        if (isExpanded) 
           Container(
-            margin: EdgeInsets.only(bottom: isExpanded ? 0 : 16),
-            padding: EdgeInsets.all(16),
+            margin: EdgeInsets.only(bottom: 16),
             decoration: BoxDecoration(
-              color: Color(0xFFF8F9FA),
+              color: Colors.white,
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
-                bottomLeft:
-                    isExpanded ? Radius.circular(0) : Radius.circular(16),
-                bottomRight:
-                    isExpanded ? Radius.circular(0) : Radius.circular(16),
+                bottomLeft: Radius.circular(16),
+                bottomRight: Radius.circular(16),
               ),
               boxShadow: [
                 BoxShadow(
@@ -484,100 +590,19 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                 ),
               ],
             ),
-            child: InkWell(
-              onTap: () {
-                setState(() {
-                  isExpanded = !isExpanded;
-                });
-              },
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Color(0xFF5B5FEF).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${index + 1}',
-                        style: GoogleFonts.montserrat(
-                          color: Color(0xFF5B5FEF),
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          module.title,
-                          style: GoogleFonts.montserrat(
-                            color: Color(0xFF2D3142),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          '${module.lessons.length} уроков',
-                          style: GoogleFonts.montserrat(
-                            color: Colors.grey[600],
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(
-                    isExpanded
-                        ? Icons.keyboard_arrow_up
-                        : Icons.keyboard_arrow_down,
-                    color: Color(0xFF5B5FEF),
-                  ),
-                ],
-              ),
+            child: Column(
+              children: module.lessons.map((lesson) => _buildLessonItem(lesson)).toList(),
             ),
           ),
-          // Display lessons if module is expanded
-          if (isExpanded)
-            Container(
-              margin: EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(16),
-                  bottomRight: Radius.circular(16),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: module.lessons
-                    .map((lesson) => _buildLessonItem(lesson))
-                    .toList(),
-              ),
-            ),
-        ],
-      );
-    });
+      ],
+    );
   }
-
+  
   // Individual lesson item
   Widget _buildLessonItem(Lesson lesson) {
     IconData iconData;
     Color iconColor;
-
+    
     // Different icons based on lesson type
     switch (lesson.type) {
       case LessonType.theory:
@@ -596,19 +621,65 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
         iconData = Icons.info;
         iconColor = Colors.grey;
     }
-
+    
     return InkWell(
       onTap: () {
-        // Navigate to appropriate screen based on lesson type
-        if (lesson.type == LessonType.task && lesson.taskId != null) {
-          // Navigate to task screen
+        // Navigate to appropriate screen based on lesson type and routeName
+        if (lesson.routeName != null) {
+          // Navigate to specific theory or practice page
+          switch (lesson.routeName) {
+            case '/objects-theory':
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ObjectsTheoryPage()),
+              );
+              break;
+            case '/arrays-theory':
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ArraysTheoryPage()),
+              );
+              break;
+            case '/destructuring-theory':
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const DestructuringTheoryPage()),
+              );
+              break;
+            case '/objects-practice-easy':
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ObjectsPracticeEasy()),
+              );
+              break;
+            case '/arrays-practice-medium':
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ArraysPracticeMedium()),
+              );
+              break;
+            case '/todo-app-project':
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const TodoAppProject()),
+              );
+              break;
+            default:
+              Get.snackbar(
+                "Урок",
+                "Открыт урок: ${lesson.title}",
+                snackPosition: SnackPosition.BOTTOM,
+              );
+          }
+        } else if (lesson.type == LessonType.task && lesson.taskId != null) {
+          // Navigate to task screen for older lessons
           Get.to(() => TasksListScreen(
-                track: "Junior Frontend (React)",
-                courseId: _course!.id,
-                taskId: lesson.taskId,
-              ));
+            track: "Junior Frontend (React)", 
+            courseId: _course!.id,
+            taskId: lesson.taskId,
+          ));
         } else {
-          // Show theory content or other content
+          // Show theory content or other content for older lessons
           Get.snackbar(
             "Урок",
             "Открыт урок: ${lesson.title}",
@@ -667,10 +738,10 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
       ),
     );
   }
-
+  
   Widget _buildInstructorInfo() {
     final instructor = _course!.instructor;
-
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -767,7 +838,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
       ],
     );
   }
-
+  
   Widget _buildStartButton() {
     return GestureDetector(
       onTap: () {
@@ -781,12 +852,12 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
             }
           }
         }
-
+        
         Get.to(() => TasksListScreen(
-              track: _course!.technology,
-              courseId: _course!.id,
-              taskId: firstTaskId,
-            ));
+          track: _course!.technology, 
+          courseId: _course!.id,
+          taskId: firstTaskId,
+        ));
       },
       child: Container(
         width: double.infinity,
@@ -823,54 +894,78 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
   // Create a mock course as a fallback when all other methods fail
   void _createMockCourse() {
     if (!mounted) return;
-
+    
     print("Creating mock course with ID: ${widget.courseId}");
-
+    
     // For Junior Frontend course
     if (widget.courseId == "junior-frontend") {
       setState(() {
         _course = Course(
           id: "junior-frontend",
           title: "Junior Frontend (React)",
-          description:
-              "Курс по фронтенд-разработке с использованием React. Идеально подходит для начинающих разработчиков.",
+          description: "Курс по фронтенд-разработке с использованием React. Идеально подходит для начинающих разработчиков.",
           level: "Junior",
           technology: "React",
           field: "Frontend",
           rating: 4.7,
           reviewsCount: 128,
           emoji: "⚛️",
-          estimatedHours: 24,
-          totalTasksCount: 15,
+          estimatedHours: 40,
+          totalTasksCount: 36,
           totalLessonsCount: 24,
           modules: [
             Module(
               id: "module-1",
-              title: "Введение в JavaScript",
+              title: "Введение и основы",
               lessons: [
                 Lesson(
                   id: "lesson-1-1",
-                  title: "Основы JavaScript",
+                  title: "Введение в JavaScript",
                   type: LessonType.theory,
-                  duration: 30,
+                  duration: 15,
                 ),
                 Lesson(
                   id: "lesson-1-2",
                   title: "Переменные и типы данных",
                   type: LessonType.theory,
-                  duration: 45,
+                  duration: 20,
                 ),
                 Lesson(
                   id: "lesson-1-3",
                   title: "Операторы и выражения",
+                  type: LessonType.theory,
+                  duration: 25,
+                ),
+                Lesson(
+                  id: "lesson-1-4",
+                  title: "Переменные и типы данных",
                   type: LessonType.task,
-                  taskId: "task1",
+                  taskId: "test1",
+                ),
+                Lesson(
+                  id: "lesson-1-5",
+                  title: "Работа с числами",
+                  type: LessonType.task,
+                  taskId: "algo1",
+                ),
+                Lesson(
+                  id: "lesson-1-6",
+                  title: "Условные операторы",
+                  type: LessonType.task,
+                  taskId: "code1",
+                ),
+                Lesson(
+                  id: "lesson-1-7",
+                  title: "Калькулятор на JavaScript",
+                  type: LessonType.project,
+                  description: "Создайте простой калькулятор с использованием HTML, CSS и JavaScript",
+                  xpReward: 50,
                 ),
               ],
             ),
             Module(
               id: "module-2",
-              title: "Функции и объекты",
+              title: "Функции и область видимости",
               lessons: [
                 Lesson(
                   id: "lesson-2-1",
@@ -880,61 +975,217 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                 ),
                 Lesson(
                   id: "lesson-2-2",
-                  title: "Объекты и массивы",
+                  title: "Область видимости",
                   type: LessonType.theory,
-                  duration: 45,
+                  duration: 25,
                 ),
                 Lesson(
                   id: "lesson-2-3",
-                  title: "Практика с объектами",
+                  title: "Замыкания",
+                  type: LessonType.theory,
+                  duration: 35,
+                ),
+                Lesson(
+                  id: "lesson-2-4",
+                  title: "Работа с функциями",
                   type: LessonType.task,
-                  taskId: "task2",
+                  taskId: "test3",
+                ),
+                Lesson(
+                  id: "lesson-2-5",
+                  title: "Замыкания в практике",
+                  type: LessonType.task,
+                  taskId: "code2",
+                ),
+                Lesson(
+                  id: "lesson-2-6",
+                  title: "Таймер с использованием замыканий",
+                  type: LessonType.project,
+                  description: "Создайте таймер обратного отсчета с использованием замыканий",
+                  xpReward: 60,
                 ),
               ],
             ),
             Module(
               id: "module-3",
-              title: "Основы React",
+              title: "Объекты и массивы",
               lessons: [
                 Lesson(
                   id: "lesson-3-1",
-                  title: "Знакомство с React",
+                  title: "Объекты в JavaScript",
+                  type: LessonType.theory,
+                  duration: 30,
+                  routeName: '/objects-theory',
+                ),
+                Lesson(
+                  id: "lesson-3-2",
+                  title: "Массивы и методы массивов",
+                  type: LessonType.theory,
+                  duration: 35,
+                  routeName: '/arrays-theory',
+                ),
+                Lesson(
+                  id: "lesson-3-3",
+                  title: "Деструктуризация и spread оператор",
+                  type: LessonType.theory,
+                  duration: 25,
+                  routeName: '/destructuring-theory',
+                ),
+                Lesson(
+                  id: "lesson-3-4",
+                  title: "Практика: Объекты (Легко)",
+                  type: LessonType.task,
+                  taskId: "objects-easy",
+                  routeName: '/objects-practice-easy',
+                  xpReward: 30,
+                ),
+                Lesson(
+                  id: "lesson-3-5",
+                  title: "Практика: Массивы (Средне)",
+                  type: LessonType.task,
+                  taskId: "arrays-medium",
+                  routeName: '/arrays-practice-medium',
+                  xpReward: 50,
+                ),
+                Lesson(
+                  id: "lesson-3-6",
+                  title: "Проект: Todo App (Сложно)",
+                  type: LessonType.project,
+                  description: "Создайте полнофункциональное приложение списка задач с использованием объектов, массивов и деструктуризации",
+                  routeName: '/todo-app-project',
+                  xpReward: 100,
+                ),
+              ],
+            ),
+            Module(
+              id: "module-4",
+              title: "Асинхронный JavaScript",
+              lessons: [
+                Lesson(
+                  id: "lesson-4-1",
+                  title: "Колбэки и асинхронность",
                   type: LessonType.theory,
                   duration: 30,
                 ),
                 Lesson(
-                  id: "lesson-3-2",
-                  title: "Компоненты в React",
+                  id: "lesson-4-2",
+                  title: "Промисы (Promises)",
                   type: LessonType.theory,
-                  duration: 45,
+                  duration: 40,
                 ),
                 Lesson(
-                  id: "lesson-3-3",
-                  title: "Создание первого компонента",
+                  id: "lesson-4-3",
+                  title: "Async/Await",
+                  type: LessonType.theory,
+                  duration: 35,
+                ),
+                Lesson(
+                  id: "lesson-4-4",
+                  title: "Работа с промисами",
                   type: LessonType.task,
-                  taskId: "task3",
+                  taskId: "code3",
+                ),
+                Lesson(
+                  id: "lesson-4-5",
+                  title: "Асинхронные операции",
+                  type: LessonType.task,
+                  taskId: "algo3",
+                ),
+                Lesson(
+                  id: "lesson-4-6",
+                  title: "Погодное приложение с API",
+                  type: LessonType.project,
+                  description: "Создайте приложение погоды, использующее внешний API с асинхронными запросами",
+                  xpReward: 80,
+                ),
+              ],
+            ),
+            Module(
+              id: "module-5",
+              title: "DOM и события",
+              lessons: [
+                Lesson(
+                  id: "lesson-5-1",
+                  title: "Введение в DOM",
+                  type: LessonType.theory,
+                  duration: 30,
+                ),
+                Lesson(
+                  id: "lesson-5-2",
+                  title: "Манипуляции с элементами",
+                  type: LessonType.theory,
+                  duration: 35,
+                ),
+                Lesson(
+                  id: "lesson-5-3",
+                  title: "События и обработчики",
+                  type: LessonType.theory,
+                  duration: 40,
+                ),
+                Lesson(
+                  id: "lesson-5-4",
+                  title: "Работа с DOM",
+                  type: LessonType.task,
+                  taskId: "test5",
+                ),
+                Lesson(
+                  id: "lesson-5-5",
+                  title: "Интерактивные элементы",
+                  type: LessonType.task,
+                  taskId: "code4",
+                ),
+                Lesson(
+                  id: "lesson-5-6",
+                  title: "Интерактивная галерея",
+                  type: LessonType.project,
+                  description: "Создайте интерактивную галерею изображений с использованием DOM и событий",
+                  xpReward: 70,
+                ),
+              ],
+            ),
+            Module(
+              id: "module-6",
+              title: "Итоговый проект",
+              lessons: [
+                Lesson(
+                  id: "lesson-6-1",
+                  title: "Подготовка к проекту",
+                  type: LessonType.theory,
+                  duration: 25,
+                ),
+                Lesson(
+                  id: "lesson-6-2",
+                  title: "Планирование архитектуры",
+                  type: LessonType.theory,
+                  duration: 30,
+                ),
+                Lesson(
+                  id: "lesson-6-3",
+                  title: "Интерактивное веб-приложение",
+                  type: LessonType.project,
+                  description: "Создайте полноценное интерактивное веб-приложение с использованием всех изученных концепций JavaScript",
+                  xpReward: 200,
                 ),
               ],
             ),
           ],
           instructor: Instructor(
             id: "instructor1",
-            name: "Александр Иванов",
+            name: "Александр Ганяк",
             title: "Senior Frontend Developer",
-            avatarInitials: "АИ",
+            avatarInitials: "АГ",
           ),
         );
         _completionPercentage = 0.35; // Set some initial progress
       });
-    }
+    } 
     // For Junior Backend Django course
     else if (widget.courseId == "junior-backend-django") {
       setState(() {
         _course = Course(
           id: "junior-backend-django",
           title: "Junior Backend (Django)",
-          description:
-              "Полный курс по бэкенд-разработке с использованием Django. Изучите основы веб-разработки на стороне сервера.",
+          description: "Полный курс по бэкенд-разработке с использованием Django. Изучите основы веб-разработки на стороне сервера.",
           level: "Junior",
           technology: "Django",
           field: "Backend",
@@ -1084,17 +1335,16 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
   // Method to mark a task as completed and update progress
   void markTaskCompleted(String taskId) {
     if (_course == null) return;
-
+    
     // Update progress percentage
     setState(() {
       // Increase progress by a small amount (would be more precise in a real app)
       _completionPercentage = (_completionPercentage + 0.05).clamp(0.0, 1.0);
-
+      
       // Update user progress in DataService
       if (DataService.to != null) {
         try {
-          final courseProgress =
-              DataService.to.currentUser.coursesProgress[_course!.id];
+          final courseProgress = DataService.to.currentUser.coursesProgress[_course!.id];
           if (courseProgress != null) {
             final updatedProgress = courseProgress.addCompletedTask(taskId);
             DataService.to.updateCourseProgress(_course!.id, updatedProgress);
@@ -1105,4 +1355,4 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
       }
     });
   }
-}
+} 

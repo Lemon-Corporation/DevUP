@@ -1,10 +1,10 @@
-import 'package:devup/Screens/Learning/task_detail_screen.dart';
-import 'package:devup/Screens/Learning/tasks_list_screen.dart';
-import 'package:devup/Values/values.dart';
-import 'package:devup/widgets/Learning/theory_block_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:devup/Values/values.dart';
+import 'package:get/get.dart';
+import 'package:devup/Screens/Learning/task_detail_screen.dart';
+import 'package:devup/widgets/Learning/theory_block_widget.dart';
+import 'package:devup/Screens/Learning/tasks_list_screen.dart';
 
 class TaskPathWidget extends StatelessWidget {
   final String track;
@@ -32,15 +32,15 @@ class TaskPathWidget extends StatelessWidget {
       );
     }
 
+    // Группируем задания по 3-4 штуки для вставки теоретических блоков между ними
     final List<Widget> pathItems = [];
     int taskCounter = 0;
-
+    
+    // Добавляем вводный теоретический блок
     pathItems.add(
       TheoryBlock(
-        title:
-            "Введение в ${track.contains("Frontend") ? "Frontend" : track.contains("Django") ? "Django" : "Spring"}",
-        content:
-            "Изучите основные концепции и принципы работы с ${track.contains("Frontend") ? "React и современным фронтендом" : track.contains("Django") ? "Django и Python" : "Spring и Java"}.",
+        title: "Введение в ${track.contains("Frontend") ? "Frontend" : track.contains("Django") ? "Django" : "Spring"}",
+        content: "Изучите основные концепции и принципы работы с ${track.contains("Frontend") ? "React и современным фронтендом" : track.contains("Django") ? "Django и Python" : "Spring и Java"}.",
         bulletPoints: [
           "Основные понятия и терминология",
           "Архитектура и принципы работы",
@@ -50,110 +50,68 @@ class TaskPathWidget extends StatelessWidget {
     );
 
     for (int i = 0; i < tasks.length; i++) {
-      pathItems
-          .add(_buildTaskNode(context, tasks[i], i, i == tasks.length - 1));
+      // Добавляем задание
+      pathItems.add(_buildTaskNode(context, tasks[i], i, i == tasks.length - 1));
       taskCounter++;
-
+      
+      // После каждых 3-4 заданий добавляем теоретический блок
       if (taskCounter % 3 == 0 && i < tasks.length - 1) {
         String theoryTitle = "";
         String theoryContent = "";
         String? codeExample;
         List<String> bulletPoints = [];
-
+        
+        // Определяем содержимое теоретического блока в зависимости от типа заданий
         if (track.contains("Frontend")) {
           if (taskCounter == 3) {
             theoryTitle = "Основы React компонентов";
-            theoryContent =
-                "Компоненты - это строительные блоки React-приложений. Они позволяют разделить UI на независимые, переиспользуемые части.";
-            codeExample =
-                "function Welcome(props) {\n  return <h1>Привет, {props.name}</h1>;\n}";
-            bulletPoints = [
-              "Функциональные компоненты",
-              "Классовые компоненты",
-              "Жизненный цикл компонентов"
-            ];
+            theoryContent = "Компоненты - это строительные блоки React-приложений. Они позволяют разделить UI на независимые, переиспользуемые части.";
+            codeExample = "function Welcome(props) {\n  return <h1>Привет, {props.name}</h1>;\n}";
+            bulletPoints = ["Функциональные компоненты", "Классовые компоненты", "Жизненный цикл компонентов"];
           } else if (taskCounter == 6) {
             theoryTitle = "Хуки в React";
-            theoryContent =
-                "Хуки позволяют использовать состояние и другие возможности React без написания классов.";
-            codeExample =
-                "function Counter() {\n  const [count, setCount] = useState(0);\n  return (\n    <div>\n      <p>Вы кликнули {count} раз</p>\n      <button onClick={() => setCount(count + 1)}>\n        Нажми на меня\n      </button>\n    </div>\n  );\n}";
-            bulletPoints = [
-              "useState",
-              "useEffect",
-              "useContext",
-              "useReducer"
-            ];
+            theoryContent = "Хуки позволяют использовать состояние и другие возможности React без написания классов.";
+            codeExample = "function Counter() {\n  const [count, setCount] = useState(0);\n  return (\n    <div>\n      <p>Вы кликнули {count} раз</p>\n      <button onClick={() => setCount(count + 1)}>\n        Нажми на меня\n      </button>\n    </div>\n  );\n}";
+            bulletPoints = ["useState", "useEffect", "useContext", "useReducer"];
           } else {
             theoryTitle = "Продвинутые концепции React";
-            theoryContent =
-                "Изучите продвинутые техники и паттерны для создания сложных React-приложений.";
-            bulletPoints = [
-              "Контекст и управление состоянием",
-              "Оптимизация производительности",
-              "Работа с формами"
-            ];
+            theoryContent = "Изучите продвинутые техники и паттерны для создания сложных React-приложений.";
+            bulletPoints = ["Контекст и управление состоянием", "Оптимизация производительности", "Работа с формами"];
           }
         } else if (track.contains("Django")) {
           if (taskCounter == 3) {
             theoryTitle = "Модели в Django";
-            theoryContent =
-                "Модели определяют структуру данных вашего приложения и предоставляют методы для работы с базой данных.";
-            codeExample =
-                "class Article(models.Model):\n    title = models.CharField(max_length=200)\n    content = models.TextField()\n    pub_date = models.DateTimeField('date published')\n    \n    def __str__(self):\n        return self.title";
-            bulletPoints = [
-              "Определение моделей",
-              "Миграции",
-              "Запросы к базе данных"
-            ];
+            theoryContent = "Модели определяют структуру данных вашего приложения и предоставляют методы для работы с базой данных.";
+            codeExample = "class Article(models.Model):\n    title = models.CharField(max_length=200)\n    content = models.TextField()\n    pub_date = models.DateTimeField('date published')\n    \n    def __str__(self):\n        return self.title";
+            bulletPoints = ["Определение моделей", "Миграции", "Запросы к базе данных"];
           } else if (taskCounter == 6) {
             theoryTitle = "Представления в Django";
-            theoryContent =
-                "Представления обрабатывают HTTP-запросы и возвращают HTTP-ответы. Они связывают модели и шаблоны.";
-            codeExample =
-                "def article_detail(request, article_id):\n    article = get_object_or_404(Article, pk=article_id)\n    return render(request, 'articles/detail.html', {'article': article})";
-            bulletPoints = [
-              "Функциональные представления",
-              "Классовые представления",
-              "Обработка форм"
-            ];
+            theoryContent = "Представления обрабатывают HTTP-запросы и возвращают HTTP-ответы. Они связывают модели и шаблоны.";
+            codeExample = "def article_detail(request, article_id):\n    article = get_object_or_404(Article, pk=article_id)\n    return render(request, 'articles/detail.html', {'article': article})";
+            bulletPoints = ["Функциональные представления", "Классовые представления", "Обработка форм"];
           } else {
             theoryTitle = "Шаблоны и формы в Django";
-            theoryContent =
-                "Шаблоны определяют структуру HTML-страниц, а формы обрабатывают пользовательский ввод.";
-            bulletPoints = [
-              "Язык шаблонов Django",
-              "Наследование шаблонов",
-              "Создание и валидация форм"
-            ];
+            theoryContent = "Шаблоны определяют структуру HTML-страниц, а формы обрабатывают пользовательский ввод.";
+            bulletPoints = ["Язык шаблонов Django", "Наследование шаблонов", "Создание и валидация форм"];
           }
         } else {
           if (taskCounter == 3) {
             theoryTitle = "Spring Boot основы";
-            theoryContent =
-                "Spring Boot упрощает создание автономных, production-ready приложений на базе Spring.";
-            codeExample =
-                "@RestController\npublic class HelloController {\n    @GetMapping(\"/hello\")\n    public String hello() {\n        return \"Hello, World!\";\n    }\n}";
-            bulletPoints = [
-              "Автоконфигурация",
-              "Стартеры",
-              "Внедрение зависимостей"
-            ];
+            theoryContent = "Spring Boot упрощает создание автономных, production-ready приложений на базе Spring.";
+            codeExample = "@RestController\npublic class HelloController {\n    @GetMapping(\"/hello\")\n    public String hello() {\n        return \"Hello, World!\";\n    }\n}";
+            bulletPoints = ["Автоконфигурация", "Стартеры", "Внедрение зависимостей"];
           } else if (taskCounter == 6) {
             theoryTitle = "Spring Data JPA";
-            theoryContent =
-                "Spring Data JPA упрощает работу с базами данных в приложениях Spring.";
-            codeExample =
-                "@Entity\npublic class User {\n    @Id\n    @GeneratedValue(strategy = GenerationType.AUTO)\n    private Long id;\n    private String name;\n    private String email;\n    \n    // Геттеры и сеттеры\n}";
+            theoryContent = "Spring Data JPA упрощает работу с базами данных в приложениях Spring.";
+            codeExample = "@Entity\npublic class User {\n    @Id\n    @GeneratedValue(strategy = GenerationType.AUTO)\n    private Long id;\n    private String name;\n    private String email;\n    \n    // Геттеры и сеттеры\n}";
             bulletPoints = ["Репозитории", "Запросы", "Транзакции"];
           } else {
             theoryTitle = "Spring Security";
-            theoryContent =
-                "Spring Security обеспечивает аутентификацию и авторизацию в приложениях Spring.";
+            theoryContent = "Spring Security обеспечивает аутентификацию и авторизацию в приложениях Spring.";
             bulletPoints = ["Аутентификация", "Авторизация", "OAuth2"];
           }
         }
-
+        
         pathItems.add(
           TheoryBlock(
             title: theoryTitle,
@@ -175,11 +133,11 @@ class TaskPathWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildTaskNode(
-      BuildContext context, Map<String, dynamic> task, int index, bool isLast) {
+  Widget _buildTaskNode(BuildContext context, Map<String, dynamic> task, int index, bool isLast) {
     final bool isCompleted = task["completed"] ?? false;
     final bool isLocked = task["locked"] ?? false;
-
+    
+    // Определяем цвет узла в зависимости от сложности
     Color nodeColor;
     if (task["difficulty"] == "Легкий") {
       nodeColor = AppColors.success;
@@ -188,11 +146,13 @@ class TaskPathWidget extends StatelessWidget {
     } else {
       nodeColor = AppColors.error;
     }
-
+    
+    // Если задание выполнено, используем зеленый цвет
     if (isCompleted) {
       nodeColor = AppColors.success;
     }
-
+    
+    // Если задание заблокировано, используем серый цвет
     if (isLocked) {
       nodeColor = AppColors.textLight;
     }
@@ -200,22 +160,22 @@ class TaskPathWidget extends StatelessWidget {
     return Column(
       children: [
         GestureDetector(
-          onTap: isLocked
-              ? null
-              : () {
-                  final TasksListScreen? tasksListScreen =
-                      context.findAncestorWidgetOfExactType<TasksListScreen>();
-
-                  Get.to(() => TaskDetailScreen(
-                        task: task,
-                        courseId: tasksListScreen?.courseId,
-                        track: tasksListScreen?.track ?? task["track"],
-                      ));
-                },
+          onTap: isLocked ? null : () {
+            // Получаем courseId и track из родительского виджета
+            final TasksListScreen? tasksListScreen = 
+                context.findAncestorWidgetOfExactType<TasksListScreen>();
+            
+            Get.to(() => TaskDetailScreen(
+              task: task,
+              courseId: tasksListScreen?.courseId,
+              track: tasksListScreen?.track ?? task["track"],
+            ));
+          },
           child: Container(
             margin: EdgeInsets.symmetric(vertical: 10),
             child: Row(
               children: [
+                // Узел (кружок)
                 Container(
                   width: 60,
                   height: 60,
@@ -258,13 +218,12 @@ class TaskPathWidget extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: 15),
+                // Информация о задании
                 Expanded(
                   child: Container(
                     padding: EdgeInsets.all(15),
                     decoration: BoxDecoration(
-                      color: isLocked
-                          ? AppColors.surface.withOpacity(0.7)
-                          : AppColors.surface,
+                      color: isLocked ? AppColors.surface.withOpacity(0.7) : AppColors.surface,
                       borderRadius: BorderRadius.circular(15),
                       border: Border.all(
                         color: isLocked ? AppColors.textLight : nodeColor,
@@ -278,8 +237,7 @@ class TaskPathWidget extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 5),
+                              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                               decoration: BoxDecoration(
                                 color: nodeColor.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(10),
@@ -306,9 +264,7 @@ class TaskPathWidget extends StatelessWidget {
                                   style: GoogleFonts.firaCode(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
-                                    color: isLocked
-                                        ? AppColors.textLight
-                                        : AppColors.textPrimary,
+                                    color: isLocked ? AppColors.textLight : AppColors.textPrimary,
                                   ),
                                 ),
                               ],
@@ -321,9 +277,7 @@ class TaskPathWidget extends StatelessWidget {
                           style: GoogleFonts.firaCode(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: isLocked
-                                ? AppColors.textLight
-                                : AppColors.textPrimary,
+                            color: isLocked ? AppColors.textLight : AppColors.textPrimary,
                           ),
                         ),
                         SizedBox(height: 5),
@@ -331,9 +285,7 @@ class TaskPathWidget extends StatelessWidget {
                           task["type"],
                           style: GoogleFonts.firaCode(
                             fontSize: 14,
-                            color: isLocked
-                                ? AppColors.textLight
-                                : AppColors.textSecondary,
+                            color: isLocked ? AppColors.textLight : AppColors.textSecondary,
                           ),
                         ),
                         if (!isLocked) SizedBox(height: 10),
@@ -364,6 +316,7 @@ class TaskPathWidget extends StatelessWidget {
             ),
           ),
         ),
+        // Линия соединения (не отображается для последнего элемента)
         if (!isLast)
           Container(
             margin: EdgeInsets.only(left: 30),
@@ -374,4 +327,4 @@ class TaskPathWidget extends StatelessWidget {
       ],
     );
   }
-}
+} 

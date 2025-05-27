@@ -2,8 +2,10 @@ import 'package:devup/Values/values.dart';
 import 'package:flutter/material.dart';
 
 class AppData {
+  // Уровни сложности для заданий
   static final List<String> difficultyLevels = ["Легкий", "Средний", "Сложный"];
 
+  // Направления программирования
   static final List<String> programmingTracks = [
     "Junior Frontend (React)",
     "Junior Backend (Django)",
@@ -13,12 +15,14 @@ class AppData {
     "Middle Backend (Spring)"
   ];
 
+  // Типы заданий
   static final List<String> taskTypes = [
     "Тест",
     "Анализ кода",
     "Задача с развернутым ответом"
   ];
 
+  // Категории заданий
   static final List<String> taskCategories = [
     "Алгоритмы",
     "Структуры данных",
@@ -36,6 +40,7 @@ class AppData {
     "Soft Skills"
   ];
 
+  // Примеры тестовых заданий
   static final List<Map<String, dynamic>> testTasks = [
     {
       "id": "test1",
@@ -106,6 +111,7 @@ class AppData {
     }
   ];
 
+  // Примеры заданий на анализ кода
   static final List<Map<String, dynamic>> codeAnalysisTasks = [
     {
       "id": "code1",

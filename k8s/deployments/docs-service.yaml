@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docs-service
+  labels:
+    app: docs-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: docs-service
+  template:
+    metadata:
+      labels:
+        app: docs-service
+    spec:
+      containers:
+        - name: docs-service
+          image: devup/docs-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8090 

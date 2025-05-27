@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: theory-service
+  labels:
+    app: theory-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: theory-service
+  template:
+    metadata:
+      labels:
+        app: theory-service
+    spec:
+      containers:
+        - name: theory-service
+          image: devup/theory-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+          env:
+            - name: DATABASE_URI
+              value: postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres:5432/devup
+          envFrom:
+            - secretRef:
+                name: db-secrets 

@@ -1,10 +1,12 @@
-import 'package:devup/Data/data_model.dart';
-import 'package:devup/Screens/Learning/course_detail_screen.dart';
-import 'package:devup/Values/values.dart';
-import 'package:devup/widgets/DarkBackground/darkRadialBackground.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:devup/Data/data_model.dart';
+import 'package:devup/Screens/Learning/tasks_list_screen.dart';
+import 'package:devup/Screens/Learning/course_detail_screen.dart';
+import 'package:devup/Values/values.dart';
+import 'package:devup/widgets/DarkBackground/darkRadialBackground.dart';
+import 'package:devup/widgets/Navigation/app_header.dart';
 
 class TrackSelectionScreen extends StatefulWidget {
   @override
@@ -95,13 +97,12 @@ class _TrackSelectionScreenState extends State<TrackSelectionScreen> {
                     itemCount: AppData.programmingTracks.length,
                     itemBuilder: (context, index) {
                       final track = AppData.programmingTracks[index];
-                      final isTrackForSelectedLevel =
-                          track.startsWith(selectedLevel);
-
+                      final isTrackForSelectedLevel = track.startsWith(selectedLevel);
+                      
                       if (!isTrackForSelectedLevel) {
                         return SizedBox.shrink();
                       }
-
+                      
                       return _buildTrackCard(track);
                     },
                   ),
@@ -127,15 +128,13 @@ class _TrackSelectionScreenState extends State<TrackSelectionScreen> {
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary : AppColors.surface,
           borderRadius: BorderRadius.circular(30),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppColors.primary.withOpacity(0.3),
-                    blurRadius: 10,
-                    offset: Offset(0, 4),
-                  ),
-                ]
-              : null,
+          boxShadow: isSelected ? [
+            BoxShadow(
+              color: AppColors.primary.withOpacity(0.3),
+              blurRadius: 10,
+              offset: Offset(0, 4),
+            ),
+          ] : null,
         ),
         child: Text(
           level,
@@ -152,17 +151,17 @@ class _TrackSelectionScreenState extends State<TrackSelectionScreen> {
   Widget _buildTrackCard(String track) {
     final isSelected = selectedTrack == track;
     final String emoji = track.contains("Frontend") ? "🖥️" : "🗄️";
-
+    
     return GestureDetector(
       onTap: () {
         setState(() {
           selectedTrack = track;
         });
-
+        
+        // Переход к экрану со списком заданий
         Future.delayed(Duration(milliseconds: 300), () {
-          final courseId = track == "Junior Frontend (React)"
-              ? "junior-frontend"
-              : "junior-backend-django";
+          // Passing Junior Frontend course ID based on track selection
+          final courseId = track == "Junior Frontend (React)" ? "junior-frontend" : "junior-backend-django";
           Get.to(() => CourseDetailScreen(courseId: courseId));
         });
       },
@@ -170,9 +169,7 @@ class _TrackSelectionScreenState extends State<TrackSelectionScreen> {
         margin: EdgeInsets.only(bottom: 15),
         padding: EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isSelected
-              ? AppColors.primary.withOpacity(0.1)
-              : AppColors.surface,
+          color: isSelected ? AppColors.primary.withOpacity(0.1) : AppColors.surface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? AppColors.primary : Colors.transparent,
@@ -209,9 +206,9 @@ class _TrackSelectionScreenState extends State<TrackSelectionScreen> {
                   ),
                   SizedBox(height: 5),
                   Text(
-                    track.contains("Frontend")
+                    track.contains("Frontend") 
                         ? "Фронтенд-разработка с использованием React"
-                        : track.contains("Django")
+                        : track.contains("Django") 
                             ? "Бэкенд-разработка с использованием Django"
                             : "Бэкенд-разработка с использованием Spring",
                     style: GoogleFonts.firaCode(
@@ -232,4 +229,4 @@ class _TrackSelectionScreenState extends State<TrackSelectionScreen> {
       ),
     );
   }
-}
+} 

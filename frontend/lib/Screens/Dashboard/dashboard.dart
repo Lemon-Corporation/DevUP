@@ -1,6 +1,6 @@
 import 'package:devup/Data/data_model.dart';
 import 'package:devup/Screens/Learning/daily_challenges_screen.dart';
-import 'package:devup/Screens/Learning/interview_simulation_screen.dart';
+import 'package:devup/Screens/Learning/ml_interview_screen.dart';
 import 'package:devup/Screens/Learning/track_selection_screen.dart';
 import 'package:devup/Screens/Learning/user_profile_screen.dart';
 import 'package:devup/Values/values.dart';
@@ -59,7 +59,7 @@ class Dashboard extends StatelessWidget {
               ),
             ),
             Text(
-              "Nina 👋🏻",
+              "User 👋🏻",
               style: TextStyle(
                 fontFamily: 'Unbounded',
                 fontSize: 24,
@@ -93,7 +93,7 @@ class Dashboard extends StatelessWidget {
             ),
             child: Center(
               child: Text(
-                "NM",
+                "UR",
                 style: GoogleFonts.firaCode(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -235,9 +235,17 @@ class Dashboard extends StatelessWidget {
                 emoji: "🤖",
                 color: Color(0xFF00C9B1),
                 onTap: () {
-                  Get.to(() => InterviewSimulationScreen());
+                  Get.to(() => MLInterviewScreen());
                 },
               ),
+            ),
+          ],
+        ),
+        SizedBox(height: 15),
+        Row(
+          children: [
+            Expanded(
+              child: Container(), // Empty container for symmetry
             ),
           ],
         ),

@@ -8,7 +8,7 @@ WORKDIR /app
 COPY --from=build /usr/local /usr/local
 ENV PATH="/usr/local/bin:$PATH"
 COPY app/ app/
-COPY .env ./
+RUN touch .env
 USER nobody
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

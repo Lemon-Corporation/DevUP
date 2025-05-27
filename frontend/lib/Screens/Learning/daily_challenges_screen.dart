@@ -1,10 +1,10 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:devup/Data/data_model.dart';
 import 'package:devup/Values/values.dart';
 import 'package:devup/widgets/DarkBackground/darkRadialBackground.dart';
 import 'package:devup/widgets/Gamification/daily_challenge.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class DailyChallengesScreen extends StatelessWidget {
   @override
@@ -63,15 +63,17 @@ class DailyChallengesScreen extends StatelessWidget {
                   child: ListView(
                     padding: EdgeInsets.symmetric(horizontal: 20),
                     children: [
-                      ...AppData.dailyChallenges
-                          .map((challenge) => DailyChallenge(
-                                title: challenge["title"],
-                                reward: challenge["reward"],
-                                progress: challenge["progress"],
-                                total: challenge["total"],
-                                onTap: () {},
-                              ))
-                          .toList(),
+                      ...AppData.dailyChallenges.map((challenge) => 
+                        DailyChallenge(
+                          title: challenge["title"],
+                          reward: challenge["reward"],
+                          progress: challenge["progress"],
+                          total: challenge["total"],
+                          onTap: () {
+                            // Действие при нажатии на челлендж
+                          },
+                        )
+                      ).toList(),
                       SizedBox(height: 20),
                       _buildCompletedChallengesSection(),
                     ],
@@ -209,4 +211,4 @@ class DailyChallengesScreen extends StatelessWidget {
       ],
     );
   }
-}
+} 

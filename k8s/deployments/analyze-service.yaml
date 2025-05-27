@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: analyze-service
+  labels:
+    app: analyze-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: analyze-service
+  template:
+    metadata:
+      labels:
+        app: analyze-service
+    spec:
+      containers:
+        - name: analyze-service
+          image: devup/analyze-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          env:
+            - name: POSTGRES_DSN
+              value: postgresql+asyncpg://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres:5432/devup
+            - name: REDIS_DSN
+              value: redis://redis:6379/0
+          envFrom:
+            - secretRef:
+                name: db-secrets 
