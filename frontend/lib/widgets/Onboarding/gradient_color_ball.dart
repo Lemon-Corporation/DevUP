@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:devup/Values/values.dart';
+import '../../Utils/utils.dart';
 
 class GradientColorBall extends StatelessWidget {
   final int selectIndex;

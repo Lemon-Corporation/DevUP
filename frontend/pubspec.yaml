@@ -59,6 +59,7 @@ flutter:
   assets:
     - assets/icon/icon.png
     - assets/icon/user-icon.png
+    - assets/icon/new_app_icon.png
     - assets/videos/Welcome_Gekko_V10.mp4
     - assets/videos/AI_Interview.MP4
 

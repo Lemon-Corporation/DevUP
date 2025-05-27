@@ -10,11 +10,11 @@
 		</data>
 		<key>flutter_assets/AssetManifest.bin</key>
 		<data>
-		ttrc18ni/ceLrwoarkK8OzqGpC0=
+		qz+hwb6pCOQh2oumE8lgHMS0GoE=
 		</data>
 		<key>flutter_assets/AssetManifest.json</key>
 		<data>
-		n3aXi2m6l+J5Sbmt8mwqWTTzVfs=
+		O27DBjEXOF9ZHSnt7mOU7gLrvAE=
 		</data>
 		<key>flutter_assets/FontManifest.json</key>
 		<data>
@@ -66,7 +66,11 @@
 		</data>
 		<key>flutter_assets/assets/icon/icon.png</key>
 		<data>
-		xet8IimIw+aKFhGMO8U8nyhdfR8=
+		g8IoNM5N3VChBd5/U68J1dXETOw=
+		</data>
+		<key>flutter_assets/assets/icon/new_app_icon.png</key>
+		<data>
+		uFjLKCYX+wlW2WAhXI6E0cz5CcY=
 		</data>
 		<key>flutter_assets/assets/icon/user-icon.png</key>
 		<data>
@@ -90,7 +94,7 @@
 		</data>
 		<key>flutter_assets/kernel_blob.bin</key>
 		<data>
-		RjY9Ot2y1uMUJRlJhM67YXaKSNk=
+		G0Ulhc2gRA6r0umRNcVyQ546ZIk=
 		</data>
 		<key>flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf</key>
 		<data>
@@ -127,14 +131,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			aGp0v5rAJErGF03Upe7DX2jC32eX6t3ZKoiZF9D/Tq0=
+			Ash0bCfnbdxSyJ+VdPvPx1W493cyaaMENSHzuQfMs3o=
 			</data>
 		</dict>
 		<key>flutter_assets/AssetManifest.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			zR7A8Ou0o8RAZp3CNCqAteGK+xXxZnokqu+vSZLQrZ0=
+			UW+oL6NpjShbOgXMSB77uIU5xESxWGufaIJRs0GzOZo=
 			</data>
 		</dict>
 		<key>flutter_assets/FontManifest.json</key>
@@ -225,7 +229,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			vP6IHlwy1LbX+7tw1SnJ8B5RvjEXTWLC9jiZjpVMQiY=
+			UORg0pUhqgDpYMXYWHgqG4SBaKnoEj6rP/yE30EwATo=
+			</data>
+		</dict>
+		<key>flutter_assets/assets/icon/new_app_icon.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Nqnn8clbgv+5l0PgxcTOldg8mkMKrFn4TvPL+rYUUGg=
 			</data>
 		</dict>
 		<key>flutter_assets/assets/icon/user-icon.png</key>
@@ -267,7 +278,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			XbvrhSU3p19FiCMGJd25nG7kzno1SBqVKkdrHqTGjD4=
+			oX56ziUFH1d1cD0Qo47RiokryxAXPWQEqmgUredyoxA=
 			</data>
 		</dict>
 		<key>flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf</key>
