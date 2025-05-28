@@ -8,6 +8,8 @@
 .pub-cache/
 .pub/
 /build/
+**/build/
+frontend/build/
 .idea/
 
 # Dependency directories
@@ -39,17 +41,6 @@ logs/
 /android/app/src/main/kotlin/
 /android/app/src/main/res/
 /android/app/src/main/assets/
-/android/app/src/main/jniLibs/
-/android/app/src/main/jni/
-/android/app/src/main/cpp/
-/android/app/src/main/aidl/
-/android/app/src/main/rs/
-/android/app/src/main/ml/
-/android/app/src/main/shaders/
-/android/app/src/main/assets/
-/android/app/src/main/res/
-/android/app/src/main/java/
-/android/app/src/main/kotlin/
 /android/app/src/main/jniLibs/
 /android/app/src/main/jni/
 /android/app/src/main/cpp/

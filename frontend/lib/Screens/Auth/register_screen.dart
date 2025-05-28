@@ -1,6 +1,6 @@
 import 'package:devup/Screens/Auth/login_screen.dart';
-import 'package:devup/Screens/Dashboard/dashboard.dart';
 import 'package:devup/Values/values.dart';
+import 'package:devup/Controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -15,9 +15,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
-  bool _obscurePassword = true;
-  bool _obscureConfirmPassword = true;
-  bool _agreeToTerms = false;
+  final AuthController authController = Get.put(AuthController());
 
   @override
   void dispose() {
@@ -84,63 +82,51 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 keyboardType: TextInputType.emailAddress,
               ),
               SizedBox(height: 16),
-              _buildTextField(
+              Obx(() => _buildTextField(
                 controller: _passwordController,
                 label: 'Пароль',
                 hint: 'Создайте пароль',
                 icon: Icons.lock_outline,
-                obscureText: _obscurePassword,
+                obscureText: authController.obscurePassword.value,
                 suffixIcon: IconButton(
                   icon: Icon(
-                    _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                    authController.obscurePassword.value ? Icons.visibility_off : Icons.visibility,
                     color: AppColors.textSecondary,
                   ),
-                  onPressed: () {
-                    setState(() {
-                      _obscurePassword = !_obscurePassword;
-                    });
-                  },
+                  onPressed: authController.togglePasswordVisibility,
                 ),
-              ),
+              )),
               SizedBox(height: 16),
-              _buildTextField(
+              Obx(() => _buildTextField(
                 controller: _confirmPasswordController,
                 label: 'Подтверждение пароля',
                 hint: 'Повторите пароль',
                 icon: Icons.lock_outline,
-                obscureText: _obscureConfirmPassword,
+                obscureText: authController.obscureConfirmPassword.value,
                 suffixIcon: IconButton(
                   icon: Icon(
-                    _obscureConfirmPassword
+                    authController.obscureConfirmPassword.value
                         ? Icons.visibility_off
                         : Icons.visibility,
                     color: AppColors.textSecondary,
                   ),
-                  onPressed: () {
-                    setState(() {
-                      _obscureConfirmPassword = !_obscureConfirmPassword;
-                    });
-                  },
+                  onPressed: authController.toggleConfirmPasswordVisibility,
                 ),
-              ),
+              )),
               SizedBox(height: 20),
               Row(
                 children: [
                   SizedBox(
                     width: 24,
                     height: 24,
-                    child: Checkbox(
-                      value: _agreeToTerms,
+                    child: Obx(() => Checkbox(
+                      value: authController.agreeToTerms.value,
                       activeColor: AppColors.primary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      onChanged: (value) {
-                        setState(() {
-                          _agreeToTerms = value!;
-                        });
-                      },
-                    ),
+                      onChanged: (value) => authController.toggleAgreeToTerms(),
+                    )),
                   ),
                   SizedBox(width: 8),
                   Expanded(
@@ -186,12 +172,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ],
               ),
               SizedBox(height: 32),
-              _buildPrimaryButton(
+              Obx(() => _buildPrimaryButton(
                 text: 'Зарегистрироваться',
+                isLoading: authController.isLoading.value,
                 onPressed: () {
-                  Get.offAll(() => Dashboard());
+                  authController.register(
+                    _nameController.text.trim(),
+                    _emailController.text.trim(),
+                    _passwordController.text,
+                    _confirmPasswordController.text,
+                  );
                 },
-              ),
+              )),
               SizedBox(height: 40),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -291,6 +283,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget _buildPrimaryButton({
     required String text,
     required VoidCallback onPressed,
+    bool isLoading = false,
   }) {
     return Container(
       width: double.infinity,
@@ -309,7 +302,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ],
       ),
       child: ElevatedButton(
-        onPressed: onPressed,
+        onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
@@ -317,15 +310,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
             borderRadius: BorderRadius.circular(16),
           ),
         ),
-        child: Text(
-          text,
-          style: TextStyle(
-            fontFamily: 'Unbounded',
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
+        child: isLoading
+            ? CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              )
+            : Text(
+                text,
+                style: TextStyle(
+                  fontFamily: 'Unbounded',
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
       ),
     );
   }

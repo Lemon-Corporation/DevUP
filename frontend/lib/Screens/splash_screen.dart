@@ -13,6 +13,7 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   late VideoPlayerController _controller;
+  static const int splashDurationSeconds = 4; // Длительность splash screen в секундах
 
   @override
   void initState() {
@@ -24,9 +25,9 @@ class _SplashScreenState extends State<SplashScreen> {
             _controller.play();
           });
 
-    _controller.addListener(() {
-      if (_controller.value.isInitialized &&
-          _controller.value.position >= _controller.value.duration) {
+    // Переходим к следующему экрану через заданное время
+    Future.delayed(Duration(seconds: splashDurationSeconds), () {
+      if (mounted) {
         Get.offAll(() => LoginScreen());
       }
     });

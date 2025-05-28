@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - DevUP Документация{% endblock %}
+
+{% block content %}
+    <h1>{{ title }}</h1>
+    <hr>
+    <div class="markdown-content">
+        {{ content|safe }}
+    </div>
+{% endblock %} 

@@ -10,3 +10,5 @@ import 'package:devup/widgets/dummy/profile_dummy.dart';
 part './app-colors.dart';
 part './styles.dart';
 part './spacing.dart';
+part './box_decoration_styles.dart';
+part './button_styles.dart';
