@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:devup/Values/values.dart';
+import 'package:devup/Services/progress_manager.dart';
 
 class ArraysPracticeMedium extends StatefulWidget {
   const ArraysPracticeMedium({Key? key}) : super(key: key);
@@ -443,6 +444,9 @@ const sum3 = numbers.reduce((acc, num) => acc + num);''',
   }
 
   void _showCompletionDialog() {
+    // Отмечаем практику как пройденную
+    ProgressManager.completeTest('arrays_practice_medium', 50);
+    
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -469,14 +473,46 @@ const sum3 = numbers.reduce((acc, num) => acc + num);''',
               ),
             ],
           ),
-          content: Text(
-            'Вы освоили методы массивов среднего уровня! Теперь вы можете эффективно работать с данными в JavaScript.',
-            style: GoogleFonts.firaCode(
-              fontSize: 16,
-              color: AppColors.textSecondary,
-              height: 1.5,
-            ),
-            textAlign: TextAlign.center,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Вы освоили методы массивов среднего уровня! Теперь вы можете эффективно работать с данными в JavaScript.',
+                style: GoogleFonts.firaCode(
+                  fontSize: 16,
+                  color: AppColors.textSecondary,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.star,
+                      color: Colors.amber,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '+50 XP',
+                      style: GoogleFonts.firaCode(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
           actions: [
             TextButton(

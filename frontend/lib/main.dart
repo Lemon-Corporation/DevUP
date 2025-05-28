@@ -1,7 +1,11 @@
 import 'package:devup/Controllers/ai_controller.dart';
 import 'package:devup/Controllers/app_state_controller.dart';
 import 'package:devup/Controllers/gamification_controller.dart';
+import 'package:devup/Controllers/auth_controller.dart';
 import 'package:devup/Data/services/app_services.dart';
+import 'package:devup/Screens/Auth/login_screen.dart';
+import 'package:devup/Screens/Auth/register_screen.dart';
+import 'package:devup/Screens/Dashboard/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -22,6 +26,7 @@ void main() async {
   Get.put(GamificationController());
   Get.put(AIController());
   Get.put(AppStateController());
+  Get.put(AuthController());
 
   print("App: All controllers initialized, starting app");
 
@@ -76,6 +81,11 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Montserrat', // Apple-подобный шрифт
       ),
       home: SplashScreen(),
+      getPages: [
+        GetPage(name: '/login', page: () => LoginScreen()),
+        GetPage(name: '/register', page: () => RegisterScreen()),
+        GetPage(name: '/dashboard', page: () => Dashboard()),
+      ],
     );
   }
 }

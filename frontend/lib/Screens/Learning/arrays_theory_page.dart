@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:devup/Values/values.dart';
 import 'package:devup/Screens/Learning/destructuring_theory_page.dart';
+import 'package:devup/Services/progress_manager.dart';
 
 class ArraysTheoryPage extends StatelessWidget {
   const ArraysTheoryPage({Key? key}) : super(key: key);
@@ -275,6 +276,9 @@ const sum = numbers.reduce((acc, n) => acc + n, 0);
               height: 50,
               child: ElevatedButton(
                 onPressed: () {
+                  // Отмечаем урок как пройденный
+                  ProgressManager.completeLesson('arrays_theory', xpReward: 15);
+                  
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const DestructuringTheoryPage()),

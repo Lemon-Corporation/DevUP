@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:devup/Values/values.dart';
+import 'package:devup/Services/progress_manager.dart';
 
 class TodoAppProject extends StatefulWidget {
   const TodoAppProject({Key? key}) : super(key: key);
@@ -578,6 +579,9 @@ console.log('Задачи по дате:', sortTasks('createdAt', 'desc'));''',
   }
 
   void _showCompletionDialog() {
+    // Отмечаем проект как завершенный
+    ProgressManager.completeTest('todo_app_project', 100);
+    
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -604,14 +608,46 @@ console.log('Задачи по дате:', sortTasks('createdAt', 'desc'));''',
               ),
             ],
           ),
-          content: Text(
-            'Поздравляем! Вы создали полнофункциональное Todo приложение, используя объекты, массивы, деструктуризацию и современные методы JavaScript. Это серьезное достижение!',
-            style: GoogleFonts.firaCode(
-              fontSize: 16,
-              color: AppColors.textSecondary,
-              height: 1.5,
-            ),
-            textAlign: TextAlign.center,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Поздравляем! Вы создали полнофункциональное Todo приложение, используя объекты, массивы, деструктуризацию и современные методы JavaScript. Это серьезное достижение!',
+                style: GoogleFonts.firaCode(
+                  fontSize: 16,
+                  color: AppColors.textSecondary,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.star,
+                      color: Colors.amber,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '+100 XP',
+                      style: GoogleFonts.firaCode(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
           actions: [
             TextButton(

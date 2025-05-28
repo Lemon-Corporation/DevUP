@@ -1,6 +1,6 @@
 import 'package:devup/Screens/Auth/register_screen.dart';
-import 'package:devup/Screens/Dashboard/dashboard.dart';
 import 'package:devup/Values/values.dart';
+import 'package:devup/Controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -12,8 +12,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  bool _obscurePassword = true;
-  bool _rememberMe = false;
+  final AuthController authController = Get.put(AuthController());
 
   @override
   void dispose() {
@@ -89,24 +88,20 @@ class _LoginScreenState extends State<LoginScreen> {
                 keyboardType: TextInputType.emailAddress,
               ),
               SizedBox(height: 16),
-              _buildTextField(
+              Obx(() => _buildTextField(
                 controller: _passwordController,
                 label: 'Пароль',
                 hint: 'Введите ваш пароль',
                 icon: Icons.lock_outline,
-                obscureText: _obscurePassword,
+                obscureText: authController.obscurePassword.value,
                 suffixIcon: IconButton(
                   icon: Icon(
-                    _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                    authController.obscurePassword.value ? Icons.visibility_off : Icons.visibility,
                     color: AppColors.textSecondary,
                   ),
-                  onPressed: () {
-                    setState(() {
-                      _obscurePassword = !_obscurePassword;
-                    });
-                  },
+                  onPressed: authController.togglePasswordVisibility,
                 ),
-              ),
+              )),
               SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -116,24 +111,20 @@ class _LoginScreenState extends State<LoginScreen> {
                       SizedBox(
                         width: 24,
                         height: 24,
-                        child: Checkbox(
-                          value: _rememberMe,
+                        child: Obx(() => Checkbox(
+                          value: authController.rememberMe.value,
                           activeColor: AppColors.primary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          onChanged: (value) {
-                            setState(() {
-                              _rememberMe = value!;
-                            });
-                          },
-                        ),
+                          onChanged: (value) => authController.toggleRememberMe(),
+                        )),
                       ),
                       SizedBox(width: 8),
                       Text(
                         'Запомнить меня',
                         style: TextStyle(
-                          fontFamily: 'Montserrat', // <--- ЗДЕСЬ МЕНЯЕМ!
+                          fontFamily: 'Montserrat',
                           fontSize: 14,
                           color: AppColors.textSecondary,
                         ),
@@ -157,18 +148,22 @@ class _LoginScreenState extends State<LoginScreen> {
                 ],
               ),
               SizedBox(height: 32),
-              _buildPrimaryButton(
+              Obx(() => _buildPrimaryButton(
                 text: 'Войти',
+                isLoading: authController.isLoading.value,
                 onPressed: () {
-                  Get.offAll(() => Dashboard());
+                  authController.login(
+                    _emailController.text.trim(),
+                    _passwordController.text,
+                  );
                 },
-              ),
+              )),
               SizedBox(height: 24),
               Center(
                 child: Text(
                   'или войдите с помощью',
                   style: TextStyle(
-                    fontFamily: 'Montserrat', // <--- ЗДЕСЬ МЕНЯЕМ!
+                    fontFamily: 'Montserrat',
                     fontSize: 14,
                     color: AppColors.textSecondary,
                   ),
@@ -204,7 +199,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Text(
                     'Нет аккаунта?',
                     style: TextStyle(
-                      fontFamily: 'Montserrat', // <--- ЗДЕСЬ МЕНЯЕМ!
+                      fontFamily: 'Montserrat',
                       fontSize: 14,
                       color: AppColors.textSecondary,
                     ),
@@ -275,7 +270,7 @@ class _LoginScreenState extends State<LoginScreen> {
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: TextStyle(
-                fontFamily: 'Montserrat', // <--- ПЛЕЙСХОЛДЕР НА MONT!
+                fontFamily: 'Montserrat',
                 fontSize: 16,
                 color: AppColors.textLight,
               ),
@@ -295,6 +290,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _buildPrimaryButton({
     required String text,
+    required bool isLoading,
     required VoidCallback onPressed,
   }) {
     return Container(
@@ -314,7 +310,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ],
       ),
       child: ElevatedButton(
-        onPressed: onPressed,
+        onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
@@ -322,15 +318,19 @@ class _LoginScreenState extends State<LoginScreen> {
             borderRadius: BorderRadius.circular(16),
           ),
         ),
-        child: Text(
-          text,
-          style: TextStyle(
-            fontFamily: 'Unbounded',
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
+        child: isLoading
+            ? CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              )
+            : Text(
+                text,
+                style: TextStyle(
+                  fontFamily: 'Unbounded',
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
       ),
     );
   }

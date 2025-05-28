@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:devup/Values/values.dart';
+import 'package:devup/Services/progress_manager.dart';
 
 class DestructuringTheoryPage extends StatelessWidget {
   const DestructuringTheoryPage({Key? key}) : super(key: key);
@@ -344,6 +345,10 @@ const { name, ...otherProps } = person;''',
               height: 50,
               child: ElevatedButton(
                 onPressed: () {
+                  // Отмечаем урок как пройденный
+                  ProgressManager.completeLesson('destructuring_theory', xpReward: 15);
+                  
+                  // Возвращаемся к списку модулей
                   Navigator.pop(context);
                   Navigator.pop(context);
                   Navigator.pop(context);
