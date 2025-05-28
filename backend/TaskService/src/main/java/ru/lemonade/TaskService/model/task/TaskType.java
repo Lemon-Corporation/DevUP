@@ -1,10 +1,12 @@
 package ru.lemonade.TaskService.model.task;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 @Entity
 @Table(name = "task_types")
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
 public class TaskType {
     @Id

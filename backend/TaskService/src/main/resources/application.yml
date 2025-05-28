@@ -4,7 +4,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/lemonTasks
     username: postgres
-    password: admin
+    password: postgres
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:

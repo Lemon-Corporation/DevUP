@@ -18,6 +18,7 @@ public class Task {
     private UUID id;
     private String title;
     private String description;
+    private String imageUrl;
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "task_tags",
