@@ -1,32 +1,53 @@
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Data/models.dart';
-import '../Constants/config.dart';
+import '../Constants/app_config.dart';
 
 class AuthService {
   late Dio _dio;
   
   AuthService() {
-    _dio = Dio(BaseOptions(
-      baseUrl: AppConfig.baseUrl,
-      connectTimeout: AppConfig.connectTimeout,
-      receiveTimeout: AppConfig.receiveTimeout,
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    ));
-    
-    // Добавляем interceptor для логирования
-    _dio.interceptors.add(LogInterceptor(
-      requestBody: true,
-      responseBody: true,
-      logPrint: (obj) => print(obj),
-    ));
+    if (!AppConfig.MOCK_MODE) {
+      _dio = Dio(BaseOptions(
+        baseUrl: AppConfig.backendUrl,
+        connectTimeout: AppConfig.connectTimeout,
+        receiveTimeout: AppConfig.receiveTimeout,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      ));
+      
+      // Добавляем interceptor для логирования
+      _dio.interceptors.add(LogInterceptor(
+        requestBody: true,
+        responseBody: true,
+        logPrint: (obj) => print(obj),
+      ));
+    }
   }
 
   // Вход в систему
   Future<JwtResponse> login(String email, String password) async {
+    if (AppConfig.MOCK_MODE) {
+      // Мок-режим: симулируем успешный вход
+      if (AppConfig.DEBUG_MODE) {
+        print('🔧 MOCK MODE: Simulating login for $email');
+      }
+      await Future.delayed(Duration(milliseconds: 500)); // Имитация задержки сети
+      
+      final mockResponse = JwtResponse(
+        accessToken: 'mock_access_token_${DateTime.now().millisecondsSinceEpoch}',
+        refreshToken: 'mock_refresh_token_${DateTime.now().millisecondsSinceEpoch}',
+        type: 'Bearer',
+        expiresIn: 3600,
+      );
+      
+      await _saveTokens(mockResponse);
+      return mockResponse;
+    }
+    
+    // Реальный режим с бэкендом
     try {
       final authRequest = AuthRequest(
         username: email,
@@ -63,6 +84,16 @@ class AuthService {
 
   // Регистрация
   Future<void> register(String username, String email, String password) async {
+    if (AppConfig.MOCK_MODE) {
+      // Мок-режим: симулируем успешную регистрацию
+      if (AppConfig.DEBUG_MODE) {
+        print('🔧 MOCK MODE: Simulating registration for $email');
+      }
+      await Future.delayed(Duration(milliseconds: 500)); // Имитация задержки сети
+      return; // Успешная регистрация
+    }
+    
+    // Реальный режим с бэкендом
     try {
       final registerRequest = RegisterRequest(
         username: username,
@@ -96,6 +127,16 @@ class AuthService {
 
   // Выход из системы
   Future<void> logout() async {
+    if (AppConfig.MOCK_MODE) {
+      // Мок-режим: просто очищаем токены
+      if (AppConfig.DEBUG_MODE) {
+        print('🔧 MOCK MODE: Simulating logout');
+      }
+      await _clearTokens();
+      return;
+    }
+    
+    // Реальный режим с бэкендом
     try {
       final refreshToken = await getRefreshToken();
       if (refreshToken != null) {

@@ -45,5 +45,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Это приложение использует микрофон для записи ваших ответов во время AI собеседования</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Это приложение использует распознавание речи для преобразования ваших ответов в текст во время собеседования</string>
 </dict>
 </plist>

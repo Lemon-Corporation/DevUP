@@ -5,6 +5,7 @@ import 'package:devup/Values/values.dart';
 import 'package:devup/widgets/DarkBackground/darkRadialBackground.dart';
 import 'package:devup/Screens/Learning/interview_simulation_screen.dart';
 import 'package:devup/Screens/Learning/ml_interview_screen.dart';
+import 'package:devup/Screens/Learning/ai_interview_screen.dart';
 
 class InterviewSelectionScreen extends StatelessWidget {
   @override
@@ -191,6 +192,19 @@ class InterviewSelectionScreen extends StatelessWidget {
               backgroundColor: AppColors.primary,
               colorText: Colors.white,
             );
+          },
+        ),
+        SizedBox(height: 15),
+        _buildInterviewCard(
+          title: "AI Interview",
+          description: "Собеседование с использованием искусственного интеллекта",
+          emoji: "🤖",
+          color: Color(0xFF9C27B0),
+          difficulty: "Высокий",
+          duration: "40-50 мин",
+          questions: 15,
+          onTap: () {
+            Get.to(() => AIInterviewScreen());
           },
         ),
       ],

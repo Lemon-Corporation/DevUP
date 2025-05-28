@@ -1,10 +1,12 @@
 import 'package:devup/Values/values.dart';
 import 'package:devup/widgets/DarkBackground/darkRadialBackground.dart';
+import 'package:devup/Constants/app_config.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 
 import 'Auth/login_screen.dart';
+import 'Dashboard/dashboard.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -14,7 +16,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   late VideoPlayerController _controller;
   static const int splashDurationSeconds = 4; // Длительность splash screen в секундах
-
+  
   @override
   void initState() {
     super.initState();
@@ -28,7 +30,19 @@ class _SplashScreenState extends State<SplashScreen> {
     // Переходим к следующему экрану через заданное время
     Future.delayed(Duration(seconds: splashDurationSeconds), () {
       if (mounted) {
-        Get.offAll(() => LoginScreen());
+        if (AppConfig.SKIP_AUTH) {
+          // Пропускаем авторизацию и идем сразу на Dashboard
+          if (AppConfig.DEBUG_MODE) {
+            print('🔧 SKIP_AUTH: Going directly to Dashboard');
+          }
+          Get.offAll(() => Dashboard());
+        } else {
+          // Обычный переход на экран входа
+          if (AppConfig.DEBUG_MODE) {
+            print('🔧 Normal flow: Going to LoginScreen');
+          }
+          Get.offAll(() => LoginScreen());
+        }
       }
     });
   }

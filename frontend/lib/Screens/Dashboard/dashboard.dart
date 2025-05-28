@@ -1,8 +1,10 @@
 import 'package:devup/Data/data_model.dart';
 import 'package:devup/Screens/Learning/daily_challenges_screen.dart';
-import 'package:devup/Screens/Learning/ml_interview_screen.dart';
+import 'package:devup/Screens/Learning/ai_interview_screen.dart';
+import 'package:devup/Screens/Learning/simple_interview_screen.dart';
 import 'package:devup/Screens/Learning/track_selection_screen.dart';
 import 'package:devup/Screens/Learning/user_profile_screen.dart';
+import 'package:devup/Screens/Learning/interview_selection_screen.dart';
 import 'package:devup/Values/values.dart';
 import 'package:devup/widgets/DarkBackground/darkRadialBackground.dart';
 import 'package:flutter/material.dart';
@@ -235,7 +237,34 @@ class Dashboard extends StatelessWidget {
                 emoji: "🤖",
                 color: Color(0xFF00C9B1),
                 onTap: () {
-                  Get.to(() => MLInterviewScreen());
+                  print("🔧 DEBUG: Tapping on AI Interview card");
+                  try {
+                    // Проверяем доступность функций перед навигацией
+                    Get.to(() => AIInterviewScreen());
+                    print("🔧 DEBUG: Navigation to AIInterviewScreen successful");
+                  } catch (e) {
+                    print("🔧 DEBUG: Error navigating to AIInterviewScreen: $e");
+                    // Показываем пользователю сообщение об ошибке
+                    Get.snackbar(
+                      "Внимание",
+                      "Переходим к упрощенной версии собеседования",
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: AppColors.warning,
+                      colorText: Colors.white,
+                      duration: Duration(seconds: 2),
+                    );
+                    
+                    // Используем простую версию как fallback
+                    Future.delayed(Duration(milliseconds: 500), () {
+                      try {
+                        Get.to(() => SimpleInterviewScreen());
+                      } catch (e2) {
+                        print("🔧 DEBUG: Error with SimpleInterviewScreen: $e2");
+                        // Последний fallback - список собеседований
+                        Get.to(() => InterviewSelectionScreen());
+                      }
+                    });
+                  }
                 },
               ),
             ),
