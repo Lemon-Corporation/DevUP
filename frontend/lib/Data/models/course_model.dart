@@ -111,7 +111,7 @@ class Course {
   
   // Вспомогательные методы для создания модулей
   static List<Module> _createFrontendModules() {
-    final modules = [
+    return [
       Module(
         id: "module-1",
         title: "Введение и основы",
@@ -213,45 +213,37 @@ class Course {
             title: "Объекты в JavaScript",
             type: LessonType.theory,
             duration: 30,
-            routeName: '/objects-theory',
           ),
           Lesson(
             id: "lesson-3-2",
             title: "Массивы и методы массивов",
             type: LessonType.theory,
             duration: 35,
-            routeName: '/arrays-theory',
           ),
           Lesson(
             id: "lesson-3-3",
             title: "Деструктуризация и spread оператор",
             type: LessonType.theory,
             duration: 25,
-            routeName: '/destructuring-theory',
           ),
           Lesson(
             id: "lesson-3-4",
-            title: "Практика: Объекты (Легко)",
+            title: "Работа с объектами",
             type: LessonType.task,
-            taskId: "objects-easy",
-            routeName: '/objects-practice-easy',
-            xpReward: 30,
+            taskId: "test4",
           ),
           Lesson(
             id: "lesson-3-5",
-            title: "Практика: Массивы (Средне)",
+            title: "Манипуляции с массивами",
             type: LessonType.task,
-            taskId: "arrays-medium",
-            routeName: '/arrays-practice-medium',
-            xpReward: 50,
+            taskId: "algo2",
           ),
           Lesson(
             id: "lesson-3-6",
-            title: "Проект: Todo App (Сложно)",
+            title: "Список задач (Todo App)",
             type: LessonType.project,
-            description: "Создайте полнофункциональное приложение списка задач с использованием объектов, массивов и деструктуризации",
-            routeName: '/todo-app-project',
-            xpReward: 100,
+            description: "Создайте приложение списка задач с использованием объектов и массивов",
+            xpReward: 70,
           ),
         ],
       ),
@@ -300,43 +292,43 @@ class Course {
       ),
       Module(
         id: "module-5",
-        title: "DOM и события",
+        title: "Основы React",
         lessons: [
           Lesson(
             id: "lesson-5-1",
-            title: "Введение в DOM",
+            title: "Введение в React",
             type: LessonType.theory,
             duration: 30,
           ),
           Lesson(
             id: "lesson-5-2",
-            title: "Манипуляции с элементами",
+            title: "Компоненты и пропсы",
             type: LessonType.theory,
             duration: 35,
           ),
           Lesson(
             id: "lesson-5-3",
-            title: "События и обработчики",
+            title: "Состояние и жизненный цикл",
             type: LessonType.theory,
             duration: 40,
           ),
           Lesson(
             id: "lesson-5-4",
-            title: "Работа с DOM",
+            title: "Основы React",
             type: LessonType.task,
             taskId: "test5",
           ),
           Lesson(
             id: "lesson-5-5",
-            title: "Интерактивные элементы",
+            title: "Компоненты React",
             type: LessonType.task,
             taskId: "code4",
           ),
           Lesson(
             id: "lesson-5-6",
-            title: "Интерактивная галерея",
+            title: "Счетчик на React",
             type: LessonType.project,
-            description: "Создайте интерактивную галерею изображений с использованием DOM и событий",
+            description: "Создайте простое приложение счетчика с использованием React",
             xpReward: 70,
           ),
         ],
@@ -359,21 +351,14 @@ class Course {
           ),
           Lesson(
             id: "lesson-6-3",
-            title: "Интерактивное веб-приложение",
+            title: "Интернет-магазин на React",
             type: LessonType.project,
-            description: "Создайте полноценное интерактивное веб-приложение с использованием всех изученных концепций JavaScript",
+            description: "Создайте полноценный интернет-магазин с использованием React и всех изученных концепций",
             xpReward: 200,
           ),
         ],
       ),
     ];
-    
-    print("_createFrontendModules: Created ${modules.length} modules");
-    for (int i = 0; i < modules.length; i++) {
-      print("Module ${i + 1}: ${modules[i].title} (${modules[i].lessons.length} lessons)");
-    }
-    
-    return modules;
   }
   
   static List<Module> _createBackendModules(String technology) {
@@ -615,15 +600,12 @@ class Course {
   // Статический метод для получения всех курсов
   static List<Course> getAllCourses() {
     return [
-      Course.createFrontendReact(level: "Junior"),
       Course.createFrontendReact(level: "beginner"),
       Course.createFrontendReact(level: "intermediate"),
       Course.createFrontendReact(level: "advanced"),
-      Course.createBackendDjango(level: "Junior"),
       Course.createBackendDjango(level: "beginner"),
       Course.createBackendDjango(level: "intermediate"),
       Course.createBackendDjango(level: "advanced"),
-      Course.createBackendSpring(level: "Junior"),
       Course.createBackendSpring(level: "beginner"),
       Course.createBackendSpring(level: "intermediate"),
       Course.createBackendSpring(level: "advanced"),
@@ -633,15 +615,8 @@ class Course {
   // Получение курса по ID
   static Course? getCourseById(String id) {
     try {
-      final allCourses = getAllCourses();
-      print("getCourseById: Looking for ID '$id'");
-      print("Available course IDs: ${allCourses.map((c) => c.id).toList()}");
-      
-      final course = allCourses.firstWhere((course) => course.id == id);
-      print("Found course: ${course.title} with ${course.modules.length} modules");
-      return course;
+      return getAllCourses().firstWhere((course) => course.id == id);
     } catch (e) {
-      print("getCourseById: Course with ID '$id' not found. Error: $e");
       return null;
     }
   }
@@ -683,7 +658,6 @@ class Lesson {
   final String? taskId; // Для заданий, ссылка на задание
   final String? description; // Для проектов
   final int? xpReward;  // Для проектов, награда опытом
-  final String? routeName; // Для теоретических уроков, ссылка на страницу теории
   
   Lesson({
     required this.id,
@@ -693,7 +667,6 @@ class Lesson {
     this.taskId,
     this.description,
     this.xpReward,
-    this.routeName,
   });
 }
 
